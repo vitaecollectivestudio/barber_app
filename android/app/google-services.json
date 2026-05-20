@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "54159583135",
+    "firebase_url": "https://vitae-3ee57-default-rtdb.firebaseio.com",
+    "project_id": "vitae-3ee57",
+    "storage_bucket": "vitae-3ee57.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:54159583135:android:dabe5f1ef957043384bfaa",
+        "android_client_info": {
+          "package_name": "com.example.barber_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "54159583135-3339qombb6po6s4gnv9vbq7darv4598l.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.barber_app",
+            "certificate_hash": "4ea4a4351871c87f1beca973cd63d129e0b84f1b"
+          }
+        },
+        {
+          "client_id": "54159583135-d7bchbeg8tg6d7ertr9ssnne4fd970id.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAueUb_4rmF5DgXWR9tb2dYRrbvScvDG2k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "54159583135-d7bchbeg8tg6d7ertr9ssnne4fd970id.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,25 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "vitae-3ee57",
+          "appId": "1:54159583135:android:dabe5f1ef957043384bfaa",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "vitae-3ee57",
+          "configurations": {
+            "android": "1:54159583135:android:dabe5f1ef957043384bfaa",
+            "web": "1:54159583135:web:69be211c59956c9384bfaa"
+          }
+        }
+      }
+    }
+  },
+  "functions": {
+  "source": "functions"
+}
+}
