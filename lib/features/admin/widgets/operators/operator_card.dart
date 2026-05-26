@@ -138,6 +138,7 @@ Future<void> premiumPopup({
   const Duration(seconds: 2),
 );
 
-if (context.mounted && Navigator.canPop(context)) {
-  Navigator.pop(context);
+if (context.mounted) {
+  Navigator.of(context, rootNavigator: true).maybePop();
+}
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/gestures.dart';
 
-import '../../../utils/responsive.dart';
+import 'package:barber_app/core/responsive/responsive_utils.dart';
 
 class DaySelector extends StatelessWidget {
 
@@ -142,7 +142,7 @@ class DaySelector extends StatelessWidget {
                   decoration: BoxDecoration(
 
                     borderRadius: BorderRadius.circular(
-                      Responsive.radius(context),
+                      Responsive.cardRadius(context),
                     ),
 
                     color: chiuso

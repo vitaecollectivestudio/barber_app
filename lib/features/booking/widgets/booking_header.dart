@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../utils/responsive.dart';
+import 'package:barber_app/core/responsive/responsive_utils.dart';
 
 class BookingHeader extends StatelessWidget {
 

@@ -14,7 +14,7 @@ import '../auth/login_page.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
-import '../../utils/responsive.dart';
+import 'package:barber_app/core/responsive/responsive_utils.dart';
 import 'dart:ui';
 
 Future<void> logoutCompleto() async {
@@ -78,7 +78,8 @@ Widget _topAction({
           ),
         ),
 
-        child: Row(
+       child: Row(
+  mainAxisSize: MainAxisSize.min,
 
           children: [
 
@@ -94,10 +95,14 @@ Widget _topAction({
                   isDesktop ? 8 : 6,
             ),
 
+
+Flexible(
+  child:
             Text(
 
               label,
-
+maxLines: 1,
+overflow: TextOverflow.ellipsis,
               style: TextStyle(
 
                 color: Colors.white,
@@ -108,6 +113,7 @@ Widget _topAction({
                 fontSize:
                     isDesktop ? 13 : 11,
               ),
+            ),
             ),
           ],
         ),
@@ -285,7 +291,10 @@ child: SafeArea(
         right: horizontalPadding,
       ),
 
-      child: Row(
+      child: SingleChildScrollView(
+  scrollDirection: Axis.horizontal,
+
+  child: Row(
 
         children: [
 
@@ -296,13 +305,30 @@ child: SafeArea(
             onTap: () {
 
               Navigator.push(
-                context,
+  context,
 
-                MaterialPageRoute(
-                  builder: (_) =>
-                      const MiePrenotazioniPage(),
-                ),
-              );
+  PageRouteBuilder(
+    transitionDuration:
+        const Duration(milliseconds: 240),
+
+    reverseTransitionDuration:
+        const Duration(milliseconds: 200),
+
+    pageBuilder:
+        (_, animation, __) {
+
+      return FadeTransition(
+        opacity: CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOut,
+        ),
+
+        child:
+            const MiePrenotazioniPage(),
+      );
+    },
+  ),
+);
             },
 
             isDesktop: isDesktop,
@@ -324,6 +350,7 @@ child: SafeArea(
             isDesktop: isDesktop,
           ),
         ],
+  ),
       ),
     ),
   ],
@@ -607,7 +634,10 @@ Positioned(
       ),
     );
   },
-  child: GestureDetector(
+  child: Material(
+  color: Colors.transparent,
+
+  child: InkWell(
                   onTapDown: (_) => setState(() => pressedIndex = i),
                   onTapUp: (_) => setState(() => pressedIndex = null),
                   onTapCancel: () => setState(() => pressedIndex = null),
@@ -665,6 +695,7 @@ Positioned(
   ),
 );
                   },
+                  
                   child: AnimatedScale(
                     scale: pressedIndex == i ? 0.96 : 1.0,
                     duration: const Duration(milliseconds: 120),
@@ -762,6 +793,8 @@ Positioned(
 
       Text(
         s["nome"] as String,
+        maxLines: 2,
+overflow: TextOverflow.ellipsis,
         style: TextStyle(
           color: Colors.white,
           fontSize:
@@ -794,6 +827,10 @@ Positioned(
     ],
   ),
 ),
+SizedBox(
+  width: isDesktop ? 72 : 60,
+
+  child:
                           Column(
   crossAxisAlignment: CrossAxisAlignment.end,
   children: [
@@ -801,7 +838,7 @@ Positioned(
     Text(
       s["prezzo"] as String,
       style: TextStyle(
-        color: Color(0xFF00C853),
+        color: const Color(0xFF69F0AE),
         fontWeight: FontWeight.bold,
         fontSize:
     isDesktop
@@ -840,6 +877,7 @@ Positioned(
 ),
 
   ],
+                          ),
 ),
                         ],
                       ),
@@ -847,6 +885,7 @@ Positioned(
                     ),
                   ),
                 ),
+  ),
                 );
               },
             ),
@@ -875,109 +914,186 @@ Positioned(
         18,
       ),
 
-      child: Row(
-        children: [
+      child: Wrap(
+  spacing: 12,
+  runSpacing: 12,
+  alignment: WrapAlignment.center,
 
-          Expanded(
-            child: GestureDetector(
-              onTapDown: (_) =>
-                  setState(() => pressedInvite = true),
+  children: [
 
-              onTapUp: (_) {
-                setState(() => pressedInvite = false);
-                invitaAmici();
-              },
+    // 🔥 INVITA
+    Material(
+      color: Colors.transparent,
 
-              onTapCancel: () =>
-                  setState(() => pressedInvite = false),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
 
-              child: AnimatedScale(
-                scale: pressedInvite ? 0.96 : 1,
-                duration:
-                    const Duration(milliseconds: 120),
+        onTap: invitaAmici,
 
-                child: Container(
-                  height: 52,
+        child: Container(
+          height: isDesktop ? 58 : 52,
 
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.92),
-                    borderRadius:
-                        BorderRadius.circular(16),
-                  ),
-
-                  child: Row(
-                    mainAxisAlignment:
-                        MainAxisAlignment.center,
-
-                    children: const [
-
-                      Icon(
-                        Icons.share,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-
-                      SizedBox(width: 8),
-
-                      Text(
-                        "INVITA",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+          constraints: const BoxConstraints(
+            minWidth: 150,
+            maxWidth: 220,
           ),
 
-          const SizedBox(width: 10),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 24,
+          ),
 
-          Expanded(
-            child: GestureDetector(
-              onTap: apriRecensioneGoogle,
+          decoration: BoxDecoration(
 
-              child: Container(
-                height: 52,
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
 
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.92),
-                  borderRadius:
-                      BorderRadius.circular(16),
-                ),
+              colors: [
+                Color(0xFF262626),
+                Color(0xFF171717),
+              ],
+            ),
 
-                child: Row(
-                  mainAxisAlignment:
-                      MainAxisAlignment.center,
+            borderRadius:
+                BorderRadius.circular(18),
 
-                  children: const [
+            border: Border.all(
+              color:
+                  Colors.white.withOpacity(0.06),
+            ),
 
-                    Icon(
-                      Icons.star,
-                      color: Colors.white,
-                      size: 20,
-                    ),
+            boxShadow: [
 
-                    SizedBox(width: 8),
+              BoxShadow(
+                color:
+                    Colors.black.withOpacity(0.45),
 
-                    Text(
-                      "RECENSIONE",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
+                blurRadius: 18,
+
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+
+            mainAxisAlignment:
+                MainAxisAlignment.center,
+
+            children: const [
+
+              Icon(
+                Icons.share_rounded,
+                color: Colors.white,
+                size: 18,
+              ),
+
+              SizedBox(width: 10),
+
+              Text(
+                "INVITA",
+
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                  letterSpacing: 1.1,
                 ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
+    ),
+
+    // 🔥 RECENSIONE
+    Material(
+      color: Colors.transparent,
+
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+
+        onTap: apriRecensioneGoogle,
+
+        child: Container(
+          height: isDesktop ? 58 : 52,
+
+          constraints: const BoxConstraints(
+            minWidth: 150,
+            maxWidth: 220,
+          ),
+
+          padding: const EdgeInsets.symmetric(
+            horizontal: 24,
+          ),
+
+          decoration: BoxDecoration(
+
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+
+              colors: [
+                Color(0xFF262626),
+                Color(0xFF171717),
+              ],
+            ),
+
+            borderRadius:
+                BorderRadius.circular(18),
+
+            border: Border.all(
+              color:
+                  Colors.white.withOpacity(0.06),
+            ),
+
+            boxShadow: [
+
+              BoxShadow(
+                color:
+                    Colors.black.withOpacity(0.45),
+
+                blurRadius: 18,
+
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+
+            mainAxisAlignment:
+                MainAxisAlignment.center,
+
+            children: const [
+
+              Icon(
+                Icons.star_rounded,
+                color: Colors.white,
+                size: 18,
+              ),
+
+              SizedBox(width: 10),
+
+              Text(
+                "RECENSIONE",
+
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                  letterSpacing: 1.1,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  ],
+),
     ),
   ),
 ),

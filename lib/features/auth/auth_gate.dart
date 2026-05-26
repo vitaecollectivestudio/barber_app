@@ -6,7 +6,7 @@ import '../../app_background.dart';
 import '../../inserisci_telefono_page.dart';
 import '../home/home_page.dart';
 import 'login_page.dart';
-import '../admin/barber_panel_page.dart';
+import '../admin/pages/barber_panel_page.dart';
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});

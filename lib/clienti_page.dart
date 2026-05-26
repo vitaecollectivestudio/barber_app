@@ -3,6 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:ui';
 import 'package:barber_app/app_background.dart';
+import 'package:barber_app/core/responsive/responsive_utils.dart';
+import 'package:barber_app/features/admin/widgets/layout/admin_topbar.dart';
+import 'package:barber_app/walkin_page.dart';
 
 class ClientiPage extends StatefulWidget {
   const ClientiPage({super.key});
@@ -17,258 +20,403 @@ class _ClientiPageState extends State<ClientiPage> {
 
   @override
   Widget build(BuildContext context) {
-    return AppBackground(
-  child: Scaffold(
+    final isMobile =
+    Responsive.isMobile(context);
+
+final isTablet =
+    Responsive.isTablet(context);
+
+final isDesktop =
+    Responsive.isDesktop(context);
+
+final horizontalPadding =
+    Responsive.horizontalPadding(context);
+
+final maxWidth =
+    Responsive.maxContentWidth(context);
+    
+    return Stack(
+  children: [
+
+    // 🌑 BACKGROUND
+    Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+
+          colors: [
+
+            Color(0xFFFAFAFA),
+
+            Color(0xFFF1F1F1),
+
+            Color(0xFFE8E8E8),
+
+            Color(0xFFF7F7F7),
+          ],
+        ),
+      ),
+    ),
+
+    // ✨ LIGHT
+    Positioned.fill(
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: RadialGradient(
+            center: Alignment.topLeft,
+            radius: 1.2,
+
+            colors: [
+
+              Colors.white.withOpacity(0.85),
+
+              Colors.transparent,
+            ],
+          ),
+        ),
+      ),
+    ),
+
+    Scaffold(
       extendBodyBehindAppBar: true,
 
-      backgroundColor: const Color(0xFF0B0B0B),
-
+      backgroundColor: Colors.transparent,
       appBar: PreferredSize(
-  preferredSize: const Size.fromHeight(92),
+  preferredSize: Size.fromHeight(
+  isMobile
+      ? 104
+      : isTablet
+          ? 132
+          : 148,
+),
 
   child: ClipRRect(
     child: BackdropFilter(
       filter: ImageFilter.blur(
-        sigmaX: 18,
-        sigmaY: 18,
+        sigmaX: 20,
+        sigmaY: 20,
       ),
 
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 18,
-          vertical: 10,
-        ),
+
+        padding: EdgeInsets.only(
+  left: isMobile ? 14 : 24,
+  right: isMobile ? 14 : 24,
+  top: isMobile ? 8 : 16,
+  bottom: isMobile ? 8 : 12,
+),
 
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.72),
 
-          border: Border(
-            bottom: BorderSide(
-              color: Colors.white.withOpacity(0.04),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+
+            colors: [
+
+              Colors.black.withOpacity(0.82),
+
+              const Color(0xFF111111)
+                  .withOpacity(0.76),
+
+              Colors.black.withOpacity(0.70),
+            ],
+          ),
+
+          borderRadius: BorderRadius.only(
+
+            bottomLeft: Radius.circular(
+              isMobile ? 28 : 34,
+            ),
+
+            bottomRight: Radius.circular(
+              isMobile ? 28 : 34,
             ),
           ),
 
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.45),
-              blurRadius: 30,
-              offset: const Offset(0, 10),
-            ),
-          ],
+          border: Border.all(
+            color: Colors.white.withOpacity(0.07),
+          ),
         ),
 
         child: SafeArea(
           child: Row(
             children: [
 
-              // 🔙 BACK
               GestureDetector(
                 onTap: () {
                   Navigator.pop(context);
                 },
 
                 child: Container(
-                  width: 46,
-                  height: 46,
+                  width: isMobile ? 54 : 72,
+height: isMobile ? 54 : 72,
 
                   decoration: BoxDecoration(
                     borderRadius:
-                        BorderRadius.circular(16),
+                        BorderRadius.circular(18),
 
-                    color: Colors.white.withOpacity(0.05),
+                    color:
+                        Colors.white.withOpacity(0.06),
 
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.05),
+                      color:
+                          Colors.white.withOpacity(0.05),
                     ),
-
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.35),
-                        blurRadius: 14,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
                   ),
 
                   child: const Icon(
                     Icons.arrow_back_ios_new_rounded,
                     color: Colors.white,
-                    size: 16,
+                    size: 18,
                   ),
                 ),
               ),
 
-              const SizedBox(width: 16),
-
-              // 🧑 TITLE
-              Expanded(
-                child: Column(
-                  mainAxisAlignment:
-                      MainAxisAlignment.center,
-
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
-
-                  children: [
-
-                    const Text(
-                      "CLIENTI",
-
-                      overflow: TextOverflow.ellipsis,
-
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 20,
-                        letterSpacing: 2,
-                      ),
-                    ),
-
-                    const SizedBox(height: 4),
-
-                    StreamBuilder<QuerySnapshot>(
-                      stream: FirebaseFirestore.instance
-                          .collection('utenti')
-                          .snapshots(),
-
-                      builder: (context, snapshot) {
-
-                        final totale =
-                            snapshot.data?.docs.length ?? 0;
-
-                        return Text(
-                          "$totale clienti registrati",
-
-                          overflow:
-                              TextOverflow.ellipsis,
-
-                          style: TextStyle(
-                            color:
-                                Colors.white.withOpacity(0.55),
-
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
+              SizedBox(
+                width: isMobile ? 14 : 20,
               ),
 
-              // 👥 ICON
-              Container(
-                width: 46,
-                height: 46,
+Container(
+  padding: EdgeInsets.symmetric(
+    horizontal: isMobile ? 8 : 12,
+    vertical: isMobile ? 4 : 6,
+  ),
 
-                decoration: BoxDecoration(
-                  borderRadius:
-                      BorderRadius.circular(16),
+  decoration: BoxDecoration(
+    color: const Color(0xFF00C853)
+        .withOpacity(0.12),
 
-                  color: Colors.white.withOpacity(0.05),
+    borderRadius:
+        BorderRadius.circular(30),
 
-                  border: Border.all(
-                    color: Colors.white.withOpacity(0.05),
-                  ),
-                ),
+    border: Border.all(
+      color: const Color(0xFF00E676)
+          .withOpacity(0.25),
+    ),
+  ),
 
-                child: const Icon(
-                  Icons.people_alt_outlined,
-                  color: Colors.white,
-                  size: 20,
-                ),
-              ),
+  child: FittedBox(
+    fit: BoxFit.scaleDown,
+
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+
+      children: [
+
+        Icon(
+          Icons.verified_rounded,
+          color: const Color(0xFF69F0AE),
+          size: isMobile ? 11 : 14,
+        ),
+
+        SizedBox(
+          width: isMobile ? 4 : 6,
+        ),
+
+        Text(
+          "GESTIONE CLIENTI REGISTRATI",
+
+          style: TextStyle(
+            color:
+                const Color(0xFF69F0AE),
+
+            fontSize:
+                isMobile ? 9 : 11,
+
+            fontWeight: FontWeight.w700,
+
+            letterSpacing:
+                isMobile ? 0.6 : 1.2,
+          ),
+        ),
+      ],
+    ),
+  ),
+),
+
             ],
           ),
         ),
       ),
     ),
   ),
-),  
+),
 
 
 
-      body: Column(
+      body: SafeArea(
+  top: false,
+
+  child: Center(
+    child: ConstrainedBox(
+      constraints: BoxConstraints(
+        maxWidth:
+            isDesktop
+                ? 1320
+                : isTablet
+                    ? 1000
+                    : double.infinity,
+      ),
+
+      child: Column(
         children: [
 const SizedBox (height:20),
           // 🔍 SEARCH BAR
           Padding(
-padding: const EdgeInsets.fromLTRB(16, 84, 16, 18),
-            child: Container(
-              height: 62,
+padding: EdgeInsets.fromLTRB(
+  horizontalPadding,
+  isMobile ? 90 : 120,
+  horizontalPadding,
+  24,
+),
+        child: Container(
+  height:
+      isMobile
+          ? 64
+          : isTablet
+              ? 72
+              : 78,
 
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(22),
+  decoration: BoxDecoration(
 
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+    borderRadius:
+        BorderRadius.circular(
+      isMobile ? 24 : 30,
+    ),
 
-                  colors: [
-                    const Color(0xFF1C1C1C),
-                    const Color(0xFF141414),
-                  ],
-                ),
+    gradient: LinearGradient(
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
 
-                border: Border.all(
-                  color: Colors.white.withOpacity(0.04),
-                ),
+  colors: [
 
-                boxShadow: [
+    const Color(0xFF202020),
 
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.35),
-                    blurRadius: 18,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
+    const Color(0xFF171717),
 
-              child: TextField(
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500,
-                ),
+    const Color(0xFF101010),
+  ],
+),
 
-                onChanged: (v) {
-                  setState(() {
-                    search = v.toLowerCase();
-                  });
-                },
+    border: Border.all(
+      color:
+    Colors.white.withOpacity(0.10),
+    ),
 
-                decoration: InputDecoration(
-                  border: InputBorder.none,
+    boxShadow: [
 
-                  contentPadding:
-                      const EdgeInsets.symmetric(vertical: 18),
+  // 🌑 MAIN SHADOW
+  BoxShadow(
+    color:
+        Colors.black.withOpacity(0.38),
 
-                  hintText: "Cerca cliente",
+    blurRadius: 42,
+    spreadRadius: 2,
 
-                  hintStyle: TextStyle(
-                    color: Colors.white.withOpacity(0.30),
-                    fontSize: 14,
-                  ),
+    offset: const Offset(0, 18),
+  ),
 
-                  prefixIcon: Padding(
-                    padding:
-                        const EdgeInsets.only(left: 14, right: 10),
+  // ✨ LIGHT GLOW
+  BoxShadow(
+    color:
+        Colors.white.withOpacity(0.03),
 
-                    child: Icon(
-                      Icons.search_rounded,
-                      color: Colors.white.withOpacity(0.35),
-                      size: 22,
-                    ),
-                  ),
+    blurRadius: 12,
+    spreadRadius: 1,
+  ),
 
-                  prefixIconConstraints:
-                      const BoxConstraints(minWidth: 50),
-                ),
-              ),
+  // 🔥 DEPTH
+  BoxShadow(
+    color:
+        Colors.black.withOpacity(0.22),
+
+    blurRadius: 80,
+    spreadRadius: 12,
+
+    offset: const Offset(0, 30),
+  ),
+],
+  ),
+
+  child: ClipRRect(
+    borderRadius:
+        BorderRadius.circular(
+      isMobile ? 24 : 30,
+    ),
+
+    child: BackdropFilter(
+      filter: ImageFilter.blur(
+        sigmaX: 18,
+        sigmaY: 18,
+      ),
+
+      child: TextField(
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w700,
+        ),
+
+        onChanged: (v) {
+          setState(() {
+            search = v.toLowerCase();
+          });
+        },
+
+        decoration: InputDecoration(
+          border: InputBorder.none,
+
+          contentPadding:
+              const EdgeInsets.symmetric(
+            vertical: 18,
+          ),
+
+          hintText: "Ricerca cliente",
+
+          hintStyle: TextStyle(
+           color:
+    Colors.white.withOpacity(0.62),
+
+            fontSize:
+    isDesktop
+        ? 18
+        : isTablet
+            ? 16
+            : 14,
+          ),
+
+          prefixIcon: Padding(
+            padding: const EdgeInsets.only(
+              left: 14,
+              right: 10,
+            ),
+
+            child: Icon(
+              Icons.manage_search_rounded,
+              color:
+                  Colors.white.withOpacity(0.35),
+
+          size:
+    isMobile ? 24 : 28,
             ),
           ),
 
+          prefixIconConstraints:
+              const BoxConstraints(
+            minWidth: 50,
+          ),
+        ),
+      ),
+    ),
+  ),
+),
+          ),
+
+          
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
+              
               stream: FirebaseFirestore.instance
                   .collection('utenti')
                   .orderBy('nome')
@@ -281,6 +429,7 @@ padding: const EdgeInsets.fromLTRB(16, 84, 16, 18),
                     child: CircularProgressIndicator(),
                   );
                 }
+
 
                 final utenti = snapshot.data!.docs.where((doc) {
 
@@ -316,12 +465,15 @@ padding: const EdgeInsets.fromLTRB(16, 84, 16, 18),
                 return ListView.separated(
                   physics: const BouncingScrollPhysics(),
 
-                  padding: const EdgeInsets.fromLTRB(
-                    16,
-                    0,
-                    16,
-                    30,
-                  ),
+                  padding: EdgeInsets.fromLTRB(
+  horizontalPadding,
+  0,
+  horizontalPadding,
+  MediaQuery.of(context)
+          .padding
+          .bottom +
+      40,
+),
 
                   itemCount: utenti.length,
 
@@ -344,8 +496,16 @@ padding: const EdgeInsets.fromLTRB(16, 84, 16, 18),
                     final telefono =
                         data['telefono']?.toString() ?? '';
 
-                    return Container(
-                      height: 74,
+                    return AnimatedContainer(
+  duration:
+      const Duration(milliseconds: 180),
+
+  height:
+      isDesktop
+          ? 102
+          : isTablet
+              ? 92
+              : 82,
 
                       padding: const EdgeInsets.symmetric(
                         horizontal: 14,
@@ -354,16 +514,20 @@ padding: const EdgeInsets.fromLTRB(16, 84, 16, 18),
 
                       decoration: BoxDecoration(
                         borderRadius:
-                            BorderRadius.circular(22),
+    BorderRadius.circular(
+      isMobile ? 26 : 34,
+    ),
 
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
 
                           colors: [
-                            const Color(0xFF1B1B1B),
-                            const Color(0xFF121212),
-                          ],
+
+  Colors.black,
+
+  Colors.black,
+],
                         ),
 
                         border: Border.all(
@@ -372,19 +536,22 @@ padding: const EdgeInsets.fromLTRB(16, 84, 16, 18),
 
                         boxShadow: [
 
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.45),
-                            blurRadius: 20,
-                            offset: const Offset(0, 8),
-                          ),
+  BoxShadow(
+    color:
+        Colors.black.withOpacity(0.24),
 
-                          BoxShadow(
-                            color:
-                                Colors.white.withOpacity(0.015),
-                            blurRadius: 1,
-                            spreadRadius: 1,
-                          ),
-                        ],
+    blurRadius: 24,
+    offset: const Offset(0, 12),
+  ),
+
+  BoxShadow(
+    color:
+        Colors.white.withOpacity(0.03),
+
+    blurRadius: 10,
+    spreadRadius: 1,
+  ),
+],
                       ),
 
                       child: Row(
@@ -392,24 +559,36 @@ padding: const EdgeInsets.fromLTRB(16, 84, 16, 18),
 
                           // 👤 AVATAR
                           Container(
-                            width: 42,
-                            height: 42,
+                            width:
+    isDesktop
+        ? 56
+        : isTablet
+            ? 50
+            : 46,
+
+height:
+    isDesktop
+        ? 56
+        : isTablet
+            ? 50
+            : 46,
 
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
 
                               gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
 
-                                colors: [
-                                  Colors.white
-                                      .withOpacity(0.08),
+  colors: [
 
-                                  Colors.white
-                                      .withOpacity(0.02),
-                                ],
-                              ),
+    const Color(0xFF00C853)
+        .withOpacity(0.22),
+
+    const Color(0xFF00E676)
+        .withOpacity(0.06),
+  ],
+),
 
                               border: Border.all(
                                 color:
@@ -418,8 +597,8 @@ padding: const EdgeInsets.fromLTRB(16, 84, 16, 18),
                             ),
 
                             child: const Icon(
-                              Icons.person,
-                              color: Colors.white70,
+                             Icons.workspace_premium_rounded,
+                             color: const Color(0xFF69F0AE),
                               size: 20,
                             ),
                           ),
@@ -444,9 +623,14 @@ padding: const EdgeInsets.fromLTRB(16, 84, 16, 18),
                                   overflow:
                                       TextOverflow.ellipsis,
 
-                                  style: const TextStyle(
+                                  style:TextStyle(
                                     color: Colors.white,
-                                    fontSize: 14,
+                                    fontSize:
+    isDesktop
+        ? 18
+        : isTablet
+            ? 16
+            : 14,
                                     fontWeight: FontWeight.w700,
                                     letterSpacing: 0.4,
                                   ),
@@ -471,49 +655,406 @@ padding: const EdgeInsets.fromLTRB(16, 84, 16, 18),
                             ),
                           ),
 
-                          // 📞 ACTION
-                          if (telefono.isNotEmpty)
-                            GestureDetector(
-                              onTap: () async {
+                          Row(
+  mainAxisSize: MainAxisSize.min,
 
-                                final url =
-                                    Uri.parse("tel:$telefono");
+  children: [
 
-                                if (await canLaunchUrl(url)) {
-                                  await launchUrl(url);
-                                }
-                              },
+    // 📞 CALL
+    if (telefono.isNotEmpty)
+      GestureDetector(
+        onTap: () async {
 
-                              child: Container(
-                                width: 38,
-                                height: 38,
+          final url =
+              Uri.parse("tel:$telefono");
 
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
+          if (await canLaunchUrl(url)) {
+            await launchUrl(url);
+          }
+        },
 
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      Colors.white
-                                          .withOpacity(0.08),
+        child: Container(
+          width: isMobile ? 40 : 44,
+          height: isMobile ? 40 : 44,
 
-                                      Colors.white
-                                          .withOpacity(0.03),
-                                    ],
-                                  ),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
 
-                                  border: Border.all(
-                                    color: Colors.white
-                                        .withOpacity(0.04),
-                                  ),
-                                ),
+            gradient: LinearGradient(
+              colors: [
 
-                                child: const Icon(
-                                  Icons.call_rounded,
-                                  color: Color(0xFF00C853),
-                                  size: 16,
-                                ),
-                              ),
-                            ),
+                Colors.white.withOpacity(0.08),
+
+                Colors.white.withOpacity(0.03),
+              ],
+            ),
+
+            border: Border.all(
+              color:
+                  Colors.white.withOpacity(0.04),
+            ),
+          ),
+
+          child: const Icon(
+            Icons.call_rounded,
+            color: Color(0xFF00C853),
+            size: 16,
+          ),
+        ),
+      ),
+
+    SizedBox(
+      width: isMobile ? 10 : 12,
+    ),
+
+    // 🗑 DELETE
+    GestureDetector(
+      onTap: () async {
+
+        final confirm =
+            await showDialog<bool>(
+          context: context,
+
+          builder: (_) {
+
+            return Dialog(
+
+  backgroundColor: Colors.transparent,
+  elevation: 0,
+
+  child: ClipRRect(
+    borderRadius:
+        BorderRadius.circular(
+      isMobile ? 34 : 42,
+    ),
+
+    child: BackdropFilter(
+      filter: ImageFilter.blur(
+        sigmaX: 24,
+        sigmaY: 24,
+      ),
+
+      child: Container(
+
+        padding: EdgeInsets.all(
+          isMobile ? 22 : 30,
+        ),
+
+        decoration: BoxDecoration(
+
+          borderRadius:
+              BorderRadius.circular(
+            isMobile ? 34 : 42,
+          ),
+
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+
+            colors: [
+
+              const Color(0xFF1B1B1B),
+
+              const Color(0xFF111111),
+            ],
+          ),
+
+          border: Border.all(
+            color:
+                Colors.white.withOpacity(0.08),
+          ),
+
+          boxShadow: [
+
+            BoxShadow(
+              color:
+                  Colors.black.withOpacity(0.45),
+
+              blurRadius: 50,
+              offset: const Offset(0, 24),
+            ),
+
+            BoxShadow(
+              color:
+                  Colors.white.withOpacity(0.02),
+
+              blurRadius: 12,
+              spreadRadius: 1,
+            ),
+          ],
+        ),
+
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+
+          children: [
+
+            // 🔴 ICON
+            Container(
+              width: isMobile ? 74 : 86,
+              height: isMobile ? 74 : 86,
+
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+
+                  colors: [
+
+                    Colors.redAccent
+                        .withOpacity(0.24),
+
+                    Colors.redAccent
+                        .withOpacity(0.08),
+                  ],
+                ),
+
+                border: Border.all(
+                  color:
+                      Colors.redAccent
+                          .withOpacity(0.24),
+                ),
+              ),
+
+              child: const Icon(
+                Icons.delete_forever_rounded,
+                color: Colors.redAccent,
+                size: 34,
+              ),
+            ),
+
+            SizedBox(
+              height:
+                  isMobile ? 20 : 28,
+            ),
+
+            // 🧠 TITLE
+            Text(
+              "ELIMINA ACCOUNT",
+
+              textAlign: TextAlign.center,
+
+              style: TextStyle(
+                color: Colors.white,
+
+                fontSize:
+                    isMobile ? 20 : 24,
+
+                fontWeight: FontWeight.w900,
+
+                letterSpacing: 1.6,
+              ),
+            ),
+
+            SizedBox(
+              height:
+                  isMobile ? 10 : 14,
+            ),
+
+            // 📝 DESCRIPTION
+            Text(
+              "Vuoi eliminare definitivamente l'account di $nome?",
+
+              textAlign: TextAlign.center,
+
+              style: TextStyle(
+                color:
+                    Colors.white.withOpacity(0.68),
+
+                fontSize:
+                    isMobile ? 13 : 15,
+
+                height: 1.5,
+
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+
+            SizedBox(
+              height:
+                  isMobile ? 28 : 36,
+            ),
+
+            // 🔘 ACTIONS
+            Row(
+              children: [
+
+                // CANCEL
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pop(
+                        context,
+                        false,
+                      );
+                    },
+
+                    child: Container(
+                      height:
+                          isMobile ? 54 : 60,
+
+                      decoration: BoxDecoration(
+
+                        borderRadius:
+                            BorderRadius.circular(22),
+
+                        color:
+                            Colors.white.withOpacity(0.05),
+
+                        border: Border.all(
+                          color:
+                              Colors.white
+                                  .withOpacity(0.05),
+                        ),
+                      ),
+
+                      child: Center(
+                        child: Text(
+                          "ANNULLA",
+
+                          style: TextStyle(
+                            color: Colors.white,
+
+                            fontSize:
+                                isMobile ? 13 : 15,
+
+                            fontWeight: FontWeight.w700,
+
+                            letterSpacing: 1,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                SizedBox(
+                  width:
+                      isMobile ? 12 : 16,
+                ),
+
+                // DELETE
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pop(
+                        context,
+                        true,
+                      );
+                    },
+
+                    child: Container(
+                      height:
+                          isMobile ? 54 : 60,
+
+                      decoration: BoxDecoration(
+
+                        borderRadius:
+                            BorderRadius.circular(22),
+
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+
+                          colors: [
+
+                            Colors.redAccent
+                                .withOpacity(0.90),
+
+                            Colors.red
+                                .withOpacity(0.75),
+                          ],
+                        ),
+
+                        boxShadow: [
+
+                          BoxShadow(
+                            color:
+                                Colors.redAccent
+                                    .withOpacity(0.28),
+
+                            blurRadius: 24,
+                            offset:
+                                const Offset(0, 10),
+                          ),
+                        ],
+                      ),
+
+                      child: Center(
+                        child: Text(
+                          "ELIMINA",
+
+                          style: TextStyle(
+                            color: Colors.white,
+
+                            fontSize:
+                                isMobile ? 13 : 15,
+
+                            fontWeight: FontWeight.w800,
+
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    ),
+  ),
+);
+          },
+        );
+
+        if (confirm == true) {
+
+          await FirebaseFirestore.instance
+              .collection('utenti')
+              .doc(user.id)
+              .delete();
+        }
+      },
+
+      child: Container(
+        width: isMobile ? 40 : 44,
+        height: isMobile ? 40 : 44,
+
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+
+          gradient: LinearGradient(
+            colors: [
+
+              Colors.redAccent
+                  .withOpacity(0.18),
+
+              Colors.redAccent
+                  .withOpacity(0.06),
+            ],
+          ),
+
+          border: Border.all(
+            color:
+                Colors.redAccent
+                    .withOpacity(0.18),
+          ),
+        ),
+
+        child: const Icon(
+          Icons.delete_outline_rounded,
+          color: Colors.redAccent,
+          size: 18,
+        ),
+      ),
+    ),
+  ],
+),
                         ],
                       ),
                     );
@@ -524,7 +1065,11 @@ padding: const EdgeInsets.fromLTRB(16, 84, 16, 18),
           ),
         ],
       ),
+    ),
   ),
+      ),
+      ),
+  ],
     );
   }
   @override

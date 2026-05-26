@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'app_background.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'utils/responsive.dart';
-
+import 'package:barber_app/core/responsive/responsive_utils.dart';
+import 'dart:ui';
 
 class MiePrenotazioniPage extends StatelessWidget {
   const MiePrenotazioniPage({super.key});
@@ -15,6 +15,11 @@ class MiePrenotazioniPage extends StatelessWidget {
     String docId,
     Map<String, dynamic> data,
   ) {
+    final isDesktop =
+    Responsive.isDesktop(context);
+
+final isTablet =
+    Responsive.isTablet(context);
     final orari = [
       "08:30","09:00","09:30","10:00","10:30",
       "11:00","11:30","12:00","12:30",
@@ -56,7 +61,14 @@ final occupati = docs.where((doc) {
   child: Material(
     color: Colors.transparent,
     child: Container(
-      margin: const EdgeInsets.symmetric(horizontal: 24),
+      margin: EdgeInsets.symmetric(
+  horizontal:
+      isDesktop
+          ? 120
+          : isTablet
+              ? 70
+              : 24,
+),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: const Color(0xFF181818),
@@ -219,7 +231,20 @@ color: occupato
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
+final isMobile =
+    Responsive.isMobile(context);
 
+final isTablet =
+    Responsive.isTablet(context);
+
+final isDesktop =
+    Responsive.isDesktop(context);
+
+final horizontalPadding =
+    Responsive.horizontalPadding(context);
+
+final maxWidth =
+    Responsive.maxContentWidth(context);
     if (user == null) {
       return const Scaffold(
         body: Center(
@@ -233,30 +258,10 @@ color: occupato
     backgroundColor: Colors.transparent,
 appBar: AppBar(
 
-  flexibleSpace: Container(
-
-  decoration: BoxDecoration(
-
-    gradient: LinearGradient(
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-
-      colors: [
-
-        Colors.black,
-
-        const Color(0xFF111111),
-
-        Colors.black.withOpacity(0.96),
-      ],
-    ),
-  ),
-),
-
   elevation: 0,
+  backgroundColor: Colors.transparent,
   surfaceTintColor: Colors.transparent,
-shadowColor: Colors.transparent,
-
+  shadowColor: Colors.transparent,
   scrolledUnderElevation: 0,
 
   centerTitle: true,
@@ -267,6 +272,33 @@ shadowColor: Colors.transparent,
           : Responsive.isTablet(context)
               ? 82
               : 74,
+
+  flexibleSpace: ClipRect(
+    child: BackdropFilter(
+      filter: ImageFilter.blur(
+        sigmaX: 18,
+        sigmaY: 18,
+      ),
+
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+
+            colors: [
+
+              Colors.black,
+
+              const Color(0xFF111111),
+
+              Colors.black.withOpacity(0.96),
+            ],
+          ),
+        ),
+      ),
+    ),
+  ),
 
   leadingWidth: 70,
 
@@ -409,7 +441,13 @@ shadowColor: Colors.transparent,
     ],
   ),
 ),
-      body: StreamBuilder<QuerySnapshot>(
+      body: Center(
+  child: ConstrainedBox(
+    constraints: BoxConstraints(
+      maxWidth: maxWidth,
+    ),
+
+    child: StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection('appuntamenti')
             .where('userId', isEqualTo: user.uid)
@@ -546,13 +584,17 @@ docs.sort((a, b) {
 }
 
           return ListView.builder(
-
-  padding: EdgeInsets.only(
-    top: 14,
-    bottom:
-        MediaQuery.of(context).padding.bottom + 30,
-  ),
-
+physics:
+    const BouncingScrollPhysics(),
+ padding: EdgeInsets.fromLTRB(
+  horizontalPadding,
+  14,
+  horizontalPadding,
+  MediaQuery.of(context)
+          .padding
+          .bottom +
+      30,
+),
   itemCount: docs.length,
 
   itemBuilder: (context, index) {
@@ -584,8 +626,6 @@ docs.sort((a, b) {
 
     return Container(
       margin: EdgeInsets.symmetric(
-  horizontal:
-      Responsive.horizontalPadding(context),
   vertical: 10,
 ),
       padding: EdgeInsets.all(
@@ -606,7 +646,9 @@ docs.sort((a, b) {
     ],
   ),
 
-  borderRadius: BorderRadius.circular(26),
+  borderRadius: BorderRadius.circular(
+  isDesktop ? 32 : 26,
+),
 
   border: Border.all(
     color: Colors.white.withOpacity(0.05),
@@ -751,7 +793,10 @@ docs.sort((a, b) {
       children: [
 
         Expanded(
-          child: GestureDetector(
+          child: Material(
+  color: Colors.transparent,
+
+  child: InkWell(
             onTap: () {
               mostraModifica(context, doc.id, data);
             },
@@ -795,6 +840,7 @@ docs.sort((a, b) {
               ),
             ),
           ),
+          ),
         ),
 
         const SizedBox(width: 12),
@@ -804,7 +850,7 @@ docs.sort((a, b) {
             onTap: () {
               showDialog(
                 context: context,
-                builder: (_) => Dialog(
+                builder: (dialogContext) => Dialog(
                   backgroundColor: Colors.transparent,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
@@ -919,10 +965,9 @@ docs.sort((a, b) {
                                       .collection('appuntamenti')
                                       .doc(doc.id)
                                       .delete();
-
-                                  if (context.mounted) {
-                                    Navigator.pop(context);
-                                  }
+if (dialogContext.mounted) {
+  Navigator.of(dialogContext).pop();
+}
                                 },
                                 child: const Text(
                                   "Elimina",
@@ -994,6 +1039,8 @@ docs.sort((a, b) {
 );
         },
       ),
+  ),
+  ),
   ),
     );
   }

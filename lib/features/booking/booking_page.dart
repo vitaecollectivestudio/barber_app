@@ -15,7 +15,16 @@ import '../../services/slot_service.dart';
 import 'widgets/booking_header.dart';
 import 'widgets/booking_time_grid.dart';
 import 'widgets/day_selector.dart';
-import '../../utils/responsive.dart';
+import 'package:barber_app/core/responsive/responsive_utils.dart';
+import 'package:barber_app/core/constants/schedule_constants.dart';
+import 'package:barber_app/features/booking/services/booking_service.dart';
+import 'package:barber_app/features/booking/services/waitlist_service.dart';
+import 'package:barber_app/core/dialogs/premium_loading_dialog.dart';
+import 'package:barber_app/core/dialogs/premium_success_dialog.dart';
+import 'package:barber_app/core/dialogs/premium_alert_dialog.dart';
+import 'package:barber_app/core/constants/app_colors.dart';
+import 'package:barber_app/core/constants/app_spacing.dart';
+import 'package:barber_app/core/constants/app_animations.dart';
 
 Future<void> scheduleNotification(
   int id,
@@ -88,7 +97,7 @@ void initState() {
 
 _animation = CurvedAnimation(
   parent: _controller,
-  curve: Curves.easeOutCubic,
+  curve: AppAnimations.smooth,
 );
 
 _controller.forward();
@@ -109,7 +118,7 @@ void _scrollToIndex(int index) {
 
   final screenWidth =
       MediaQuery.of(context).size.width;
-
+if (!_scrollController.hasClients) return;
   final offset =
       (index * itemWidth) -
       (screenWidth / 2) +
@@ -273,12 +282,7 @@ if (!mounted) return;
     {"nome": "Antonio", "img": "assets/images/antonio.jpeg"},
   ];
 
-  final orari = [
-    "08:30","09:00","09:30","10:00","10:30",
-    "11:00","11:30","12:00","12:30",
-    "15:00","15:30","16:00","16:30",
-    "17:00","17:30","18:00","18:30",
-  ];
+
 
   bool isClosed(DateTime d) {
   final now = DateTime.now();
@@ -347,6 +351,26 @@ final end = start.add(Duration(minutes: widget.durata));
 final snapshot = await FirebaseFirestore.instance
     .collection('appuntamenti')
     .where('operatore', isEqualTo: operatore)
+    .where(
+      'data',
+      isGreaterThanOrEqualTo: Timestamp.fromDate(
+        DateTime(
+          selectedDay.year,
+          selectedDay.month,
+          selectedDay.day,
+        ),
+      ),
+    )
+    .where(
+      'data',
+      isLessThan: Timestamp.fromDate(
+        DateTime(
+          selectedDay.year,
+          selectedDay.month,
+          selectedDay.day + 1,
+        ),
+      ),
+    )
     .get();
 if (!mounted) return;
 final clash = snapshot.docs.any((doc) {
@@ -361,7 +385,8 @@ final clash = snapshot.docs.any((doc) {
     int.parse(oraDoc.split(":")[1]),
   );
 
- final durataDoc = doc['durata'] ?? 30;
+ final durataDoc =
+    (doc.data() as Map<String, dynamic>)['durata'] ?? 30;
 final endDoc = startDoc.add(Duration(minutes: durataDoc));
 
   return start.isBefore(endDoc) && end.isAfter(startDoc);
@@ -380,143 +405,13 @@ if (clash) {
   }
 
   // 👇 QUI PARTE IL TUO CODICE NORMALE
-  showGeneralDialog(
+  PremiumLoadingDialog.show(
   context: context,
 
-  barrierDismissible: false,
+  title: "CONFERMA PRENOTAZIONE",
 
-  barrierLabel: "loading",
-
-  barrierColor: Colors.black.withOpacity(0.75),
-
-  transitionDuration: const Duration(milliseconds: 250),
-
-  pageBuilder: (_, __, ___) {
-
-    return Center(
-      child: Material(
-        color: Colors.transparent,
-
-        child: Container(
-          margin: EdgeInsets.symmetric(
-  horizontal: horizontalPadding,
-),
-
-          padding: const EdgeInsets.symmetric(
-            horizontal: 30,
-            vertical: 28,
-          ),
-
-          decoration: BoxDecoration(
-            color: const Color(0xFF181818),
-
-            borderRadius: BorderRadius.circular(24),
-
-            border: Border.all(
-              color: Colors.white.withOpacity(0.06),
-            ),
-
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.8),
-                blurRadius: 30,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-
-              Container(
-  width: 140,
-  height: 5,
-
-  decoration: BoxDecoration(
-    color: Colors.white.withOpacity(0.06),
-    borderRadius: BorderRadius.circular(30),
-  ),
-
-  child: TweenAnimationBuilder<double>(
-
-    tween: Tween(begin: 0, end: 1),
-
-    duration: const Duration(seconds: 2),
-
-    curve: Curves.easeInOut,
-
-    builder: (context, value, child) {
-
-      return Align(
-        alignment: Alignment(-1 + (value * 2), 0),
-
-        child: Container(
-          width: 70,
-
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(30),
-
-            gradient: const LinearGradient(
-  colors: [
-    Colors.white,
-    Color(0xFFEAEAEA),
-  ],
-),
-
-boxShadow: [
-  BoxShadow(
-    color: Colors.white24,
-    blurRadius: 16,
-    spreadRadius: 1,
-  ),
-],
-          ),
-        ),
-      );
-    },
-  ),
-),
-
-              const SizedBox(height: 22),
-
-              const Text(
-                "CONFERMA PRENOTAZIONE",
-                textAlign: TextAlign.center,
-
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-
-           
-
-              const Text(
-                "Stiamo riservando il tuo appuntamento.",
-                textAlign: TextAlign.center,
-
-                style: TextStyle(
-                  color: Colors.white54,
-                  fontSize: 13,
-                  height: 1.5,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  },
-
-  transitionBuilder: (_, animation, __, child) {
-
-    return FadeTransition(
-      opacity: animation,
-      child: child,
-    );
-  },
+  subtitle:
+      "Stiamo riservando il tuo appuntamento.",
 );
 
 
@@ -565,16 +460,31 @@ if (chiuso) {
 }
 
 // 👇 2. SALVI APPUNTAMENTO CON ID
-final docRef = await FirebaseFirestore.instance.collection('appuntamenti').add({
-  "nome": nomeFinale.isNotEmpty ? nomeFinale : user.email,
-  "servizio": widget.servizio,
-  "ora": ora,
-  "operatore": operatore,
-  "data": Timestamp.fromDate(selectedDay),
-  "userId": user.uid,
-  "telefono": telefono,
-  "durata": widget.durata,
-});
+final docRef =
+    await BookingService.createAppointment(
+  data: {
+
+    "nome": nomeFinale.isNotEmpty
+        ? nomeFinale
+        : user.email,
+
+    "servizio": widget.servizio,
+
+    "ora": ora,
+
+    "operatore": operatore,
+
+    "data": Timestamp.fromDate(
+      selectedDay,
+    ),
+
+    "userId": user.uid,
+
+    "telefono": telefono,
+
+    "durata": widget.durata,
+  },
+);
 if (!mounted) return;
 // 🔔 👇 INCOLLA QUI SOTTO 👇
 
@@ -612,118 +522,20 @@ if (oneDayBefore.isAfter(DateTime.now())) {
   );
 }
 
-  if (mounted) {
-  Navigator.pop(context);
+  if (mounted && Navigator.canPop(context)) {
+  Navigator.of(context, rootNavigator: true).pop();
 }
 
 HapticFeedback.lightImpact();
 
-showGeneralDialog(
+await PremiumSuccessDialog.show(
   context: context,
-  barrierDismissible: false,
-  barrierLabel: "success",
-  barrierColor: Colors.black.withOpacity(0.6),
-  transitionDuration: const Duration(milliseconds: 250),
 
-  pageBuilder: (_, __, ___) {
-    return Center(
-      child: Material(
-        color: Colors.transparent,
-        child: Container(
-          margin: EdgeInsets.symmetric(
-  horizontal: horizontalPadding,
-  ),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
-          decoration: BoxDecoration(
-  color: const Color(0xFF181818),
-  borderRadius: BorderRadius.circular(20),
-  border: Border.all(
-    color: Colors.white.withOpacity(0.05),
-  ),
-  boxShadow: [
-    BoxShadow(
-      color: Colors.black.withOpacity(0.8), // 🔥 ombra nera
-      blurRadius: 30,
-      offset: const Offset(0, 10),
-    ),
-  ],
-),
-          child: Column(
-  mainAxisSize: MainAxisSize.min,
-  children: [
+  title: "Prenotazione confermata",
 
-    const Icon(
-      Icons.check,
-      color: Colors.white,
-      size: 32,
-    ),
-
-    const SizedBox(height: 12),
-
-    Text(
-      "Prenotazione confermata",
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        color: Colors.white,
-        fontSize: MediaQuery.of(context).size.width * 0.048,
-        fontWeight: FontWeight.w700, // 🔥 più professionale
-        letterSpacing: 0.3,
-      ),
-    ),
-
-    const SizedBox(height: 10),
-
-    // 🔥 SERVIZIO (più elegante)
-    Text(
-      widget.servizio,
-      textAlign: TextAlign.center,
-      style: const TextStyle(
-        color: Colors.white70,
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-      ),
-    ),
-
-    const SizedBox(height: 16),
-
-    // 🔥 DATA + ORA
-    Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        "${formatData(selectedDay)} • $ora",
-        style: const TextStyle(
-          color: Colors.white70,
-          fontSize: 13,
-          fontWeight: FontWeight.w600, // 🔥 più leggibile
-        ),
-      ),
-    ),
-
-  ],
-)
-        ),
-      ),
-    );
-  },
-
-  transitionBuilder: (_, animation, __, child) {
-    return FadeTransition(
-      opacity: animation,
-      child: child,
-    );
-  },
+subtitle:
+    "${widget.servizio}\n\n${formatData(selectedDay)} • $ora",
 );
-
-await Future.delayed(const Duration(seconds: 2));
-
-if (mounted) {
-  Navigator.pop(context); // chiude popup successo
-
-}
 
 
 await caricaOrariOccupati();
@@ -735,9 +547,6 @@ setState(() {
   isLoading = false;
 });
 
-  setState(() {
-    isLoading = false;
-  });
 }
 
   Widget slot(String o) {
@@ -812,6 +621,9 @@ final firstDay = DateTime(now.year, now.month, now.day);
 }
   @override
   Widget build(BuildContext context) {
+      final orari = selectedDay.weekday == 1
+    ? ScheduleConstants.mondaySlots
+    : ScheduleConstants.standardSlots;
     final now = DateTime.now();
     final horizontalPadding =
     Responsive.horizontalPadding(context);
@@ -839,7 +651,29 @@ final canConfirm =
     operatore != null &&
     orarioSelezionato != null &&
     !isLoading;
+final hasMorning =
+    orariFiltrati.any(
+      (o) => o.compareTo("13:00") < 0,
+    );
 
+final hasAfternoon =
+    orariFiltrati.any(
+      (o) => o.compareTo("13:00") >= 0,
+    );
+
+    final morningSlots =
+    orariFiltrati
+        .where(
+          (o) => o.compareTo("13:00") < 0,
+        )
+        .toList();
+
+final afternoonSlots =
+    orariFiltrati
+        .where(
+          (o) => o.compareTo("13:00") >= 0,
+        )
+        .toList();
     return FadeTransition(
   opacity: _animation,
   child: SlideTransition(
@@ -849,6 +683,7 @@ final canConfirm =
     ).animate(_animation),
     child: AppBackground(
     child: Scaffold(
+  resizeToAvoidBottomInset: true,
       extendBody: true,
       backgroundColor: Colors.transparent,
       appBar: AppBar(
@@ -1023,7 +858,7 @@ final canConfirm =
         decoration: BoxDecoration(
 
           color:
-              const Color(0xFF00C853)
+              AppColors.primary
                   .withOpacity(0.10),
 
           borderRadius:
@@ -1031,7 +866,7 @@ final canConfirm =
 
           border: Border.all(
             color:
-                const Color(0xFF00C853)
+                 AppColors.primary
                     .withOpacity(0.20),
           ),
         ),
@@ -1065,6 +900,8 @@ final canConfirm =
     ),
 
     child: SingleChildScrollView(
+  physics:
+      const BouncingScrollPhysics(),
       child: Column(
     children: [
 
@@ -1094,7 +931,7 @@ const SizedBox(height:20),
       offset: const Offset(0, 10),
     ),
     BoxShadow(
-      color: const Color(0xFF00C853).withOpacity(0.08),
+      color: AppColors.primary.withOpacity(0.08),
       blurRadius: 20,
     ),
   ],
@@ -1116,7 +953,7 @@ child: Center(
     },
     blendMode: BlendMode.dstIn,
     child: SizedBox(
-    width: MediaQuery.of(context).size.width,
+    width: double.infinity,
     height: 95,
         child: ScrollConfiguration(
   behavior: const ScrollBehavior().copyWith(
@@ -1188,12 +1025,14 @@ runSpacing: isDesktop ? 20 : 12,
 
             return AnimatedContainer(
   duration: const Duration(milliseconds: 150),
-  curve: Curves.easeOutCubic,
+  curve: AppAnimations.smooth,
  width: isDesktop
     ? 240
     : isTablet
         ? 210
-        : (MediaQuery.of(context).size.width / 2.45),
+        : Responsive.isMobile(context)
+    ? MediaQuery.of(context).size.width * 0.40
+    : MediaQuery.of(context).size.width * 0.28,
   margin: EdgeInsets.symmetric(
   horizontal: horizontalPadding,
 ),
@@ -1208,7 +1047,7 @@ runSpacing: isDesktop ? 20 : 12,
 
     border: Border.all(
   color: sel
-      ? const Color(0xFF00C853)
+      ? AppColors.primary
       : Colors.transparent,
   width: 2,
 ),
@@ -1216,7 +1055,7 @@ runSpacing: isDesktop ? 20 : 12,
     boxShadow: sel
     ? [
         BoxShadow(
-          color: const Color(0xFF00C853).withOpacity(0.4),
+          color: AppColors.primary.withOpacity(0.4),
           blurRadius: 12,
           spreadRadius: 1,
         ),
@@ -1267,10 +1106,14 @@ height: isDesktop ? 96 : 74,
             ),
           ),
 
-          const SizedBox(height: 12),
+        const SizedBox(
+  height: AppSpacing.sm,
+),
 
           Text(
             op["nome"]!,
+            maxLines: 1,
+overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontWeight: FontWeight.w600,
               fontSize: 15,
@@ -1293,7 +1136,9 @@ BookingHeader(
   subtitle: "Seleziona l'orario",
 ),
 
-const SizedBox(height: 20),
+const SizedBox(
+  height: AppSpacing.lg,
+),
 
       Container(
   margin: EdgeInsets.symmetric(
@@ -1336,7 +1181,9 @@ child: operatore == null || !giornoSelezionato
                 ),
               ),
 
-              const SizedBox(height: 12),
+            const SizedBox(
+  height: AppSpacing.sm,
+),
 
               Text(
   operatore == null
@@ -1344,7 +1191,7 @@ child: operatore == null || !giornoSelezionato
       : "Seleziona un giorno dal calendario per visualizzare gli orari disponibili.",
   textAlign: TextAlign.center,
   style: const TextStyle(
-    color: Colors.white70,
+    color: AppColors.textSecondary,
     fontSize: 14,
     height: 1.5,
     fontWeight: FontWeight.w500,
@@ -1455,7 +1302,7 @@ SizedBox(
   width: double.infinity,
 
   child: AnimatedOpacity(
-    duration: const Duration(milliseconds: 250),
+    duration: AppAnimations.normal,
     opacity: giaInLista ? 0.6 : 1,
 
     child: ElevatedButton(
@@ -1485,115 +1332,29 @@ SizedBox(
               if (user == null) return;
 
               // 🔥 CONTROLLO SE GIÀ PRESENTE
-              final esiste = await FirebaseFirestore.instance
-                  .collection('lista_attesa')
-                  .where('userId', isEqualTo: user.uid)
-                  .where(
-                    'data',
-                    isEqualTo: Timestamp.fromDate(selectedDay),
-                  )
-                  .get();
+              final esiste =
+    await WaitlistService.alreadyInWaitlist(
+  userId: user.uid,
+  giorno: selectedDay,
+);
 
               // ❌ GIÀ IN LISTA
-              if (esiste.docs.isNotEmpty) {
+              if (esiste) {
 
                 setState(() {
                   giaInLista = true;
                 });
 
-                showGeneralDialog(
-                  context: context,
+                PremiumAlertDialog.show(
+  context: context,
 
-                  barrierDismissible: true,
-                  barrierLabel: "",
+  title: "Sei già in lista d'attesa.",
 
-                  barrierColor: Colors.black.withOpacity(0.7),
+  subtitle:
+      "Hai già richiesto uno slot per questa giornata.",
 
-                  transitionDuration:
-                      const Duration(milliseconds: 250),
-
-                  pageBuilder: (_, __, ___) {
-
-                    return Center(
-                      child: Material(
-                        color: Colors.transparent,
-
-                        child: Container(
-                          margin: EdgeInsets.symmetric(
-  horizontal: horizontalPadding,
-),
-
-                          padding: const EdgeInsets.all(26),
-
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF181818),
-
-                            borderRadius:
-                                BorderRadius.circular(24),
-
-                            border: Border.all(
-                              color: Colors.white12,
-                            ),
-
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.8),
-                                blurRadius: 30,
-                              ),
-                            ],
-                          ),
-
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: const [
-
-                              Icon(
-                                Icons.info_outline,
-                                color: Colors.white,
-                                size: 34,
-                              ),
-
-                              SizedBox(height: 10),
-
-                              Text(
-                                "Sei già in lista d'attesa.",
-                                textAlign: TextAlign.center,
-
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-
-                              SizedBox(height: 10),
-
-                              Text(
-                                "Hai già richiesto uno slot per questa giornata.",
-                                textAlign: TextAlign.center,
-
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 14,
-                                  height: 1.5,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-
-                  transitionBuilder:
-                      (_, animation, __, child) {
-
-                    return FadeTransition(
-                      opacity: animation,
-                      child: child,
-                    );
-                  },
-                );
+  icon: Icons.info_outline,
+);
 
                 return;
               }
@@ -1604,120 +1365,28 @@ SizedBox(
                   .get();
 
               // ✅ SALVA
-              await FirebaseFirestore.instance
-                  .collection('lista_attesa')
-                  .add({
-
-                "userId": user.uid,
-
-                "operatore": operatore,
-
-                "servizio": widget.servizio,
-
-                "data": Timestamp.fromDate(selectedDay),
-
-                "fcmToken": userDoc.data()?['fcmToken'],
-
-                "creatoIl": Timestamp.now(),
-              });
+              await WaitlistService.addToWaitlist(
+  userId: user.uid,
+  operatore: operatore,
+  servizio: widget.servizio,
+  giorno: selectedDay,
+  fcmToken: userDoc.data()?['fcmToken'],
+);
 
               setState(() {
                 giaInLista = true;
               });
 
               // ✅ POPUP PREMIUM
-              showGeneralDialog(
-                context: context,
+              PremiumSuccessDialog.show(
+  context: context,
 
-                barrierDismissible: true,
-                barrierLabel: "",
+  title:
+      "Inserito in lista d'attesa ✨",
 
-                barrierColor: Colors.black.withOpacity(0.7),
-
-                transitionDuration:
-                    const Duration(milliseconds: 250),
-
-                pageBuilder: (_, __, ___) {
-
-                  return Center(
-                    child: Material(
-                      color: Colors.transparent,
-
-                      child: Container(
-                        margin:
-                            EdgeInsets.symmetric(horizontal: 30),
-
-                        padding: const EdgeInsets.all(26),
-
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF181818),
-
-                          borderRadius:
-                              BorderRadius.circular(24),
-
-                          border: Border.all(
-                            color: Colors.white12,
-                          ),
-
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.8),
-                              blurRadius: 30,
-                            ),
-                          ],
-                        ),
-
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: const [
-
-                            Icon(
-                              Icons.check,
-                              color: Colors.white,
-                              size: 34,
-                            ),
-
-                            SizedBox(height: 18),
-
-                            Text(
-                              "Inserito in lista d'attesa per questo giorno.✨",
-                              textAlign: TextAlign.center,
-
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-
-                            SizedBox(height: 10),
-
-                            Text(
-                              "Riceverai una notifica non appena sarà disponibile uno slot.",
-                              textAlign: TextAlign.center,
-
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 14,
-                                height: 1.5,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
-
-                transitionBuilder:
-                    (_, animation, __, child) {
-
-                  return FadeTransition(
-                    opacity: animation,
-                    child: child,
-                  );
-                },
-              );
+  subtitle:
+      "Riceverai una notifica non appena sarà disponibile uno slot.",
+);
             },
 
       child: Text(
@@ -1744,7 +1413,7 @@ SizedBox(
   children: [
 
     // 🌅 MATTINA
-    if (orariFiltrati.any((o) => o.compareTo("13:00") < 0))
+    if (hasMorning)
       const Padding(
         padding: EdgeInsets.only(left: 6, bottom: 14),
         child: Text(
@@ -1758,11 +1427,9 @@ SizedBox(
         ),
       ),
 
-    if (orariFiltrati.any((o) => o.compareTo("13:00") < 0))
+    if (morningSlots.isNotEmpty)
       BookingTimeGrid(
-  orari: orariFiltrati
-      .where((o) => o.compareTo("13:00") < 0)
-      .toList(),
+  orari: morningSlots,
 
   selected: orarioSelezionato,
 
@@ -1773,8 +1440,16 @@ SizedBox(
   },
 ),
 
+SizedBox(
+  height:
+      morningSlots.length <= 2
+          ? 10
+          : morningSlots.length <= 4
+              ? 18
+              : 28,
+),
     // 🌙 POMERIGGIO
-    if (orariFiltrati.any((o) => o.compareTo("13:00") >= 0))
+    if (hasAfternoon)
       const Padding(
   padding: EdgeInsets.only(
     left: 6,
@@ -1792,11 +1467,9 @@ SizedBox(
         ),
       ),
 
-    if (orariFiltrati.any((o) => o.compareTo("13:00") >= 0))
+    if (afternoonSlots.isNotEmpty)
       BookingTimeGrid(
-  orari: orariFiltrati
-      .where((o) => o.compareTo("13:00") >= 0)
-      .toList(),
+  orari: afternoonSlots,
 
   selected: orarioSelezionato,
 
@@ -1845,7 +1518,7 @@ bottomNavigationBar: SafeArea(
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: canConfirm
-              ? const Color(0xFF00C853)
+              ? AppColors.primary
               : Colors.grey.shade800,
 
           foregroundColor: Colors.white,
@@ -1859,8 +1532,9 @@ bottomNavigationBar: SafeArea(
           ),
         ),
 
-        onPressed: canConfirm
-            ? () async {
+onPressed:
+    canConfirm && !loadingOrari
+                ? () async {
                 HapticFeedback.mediumImpact();
                 await salva(orarioSelezionato!);
               }
@@ -1871,12 +1545,16 @@ bottomNavigationBar: SafeArea(
                 height: 20,
                 width: 20,
                 child: CircularProgressIndicator(
+                  strokeCap: StrokeCap.round,
                   color: Colors.white,
                   strokeWidth: 2,
                 ),
               )
-            : Text(
-                "CONFERMA PRENOTAZIONE",
+            : FittedBox(
+    fit: BoxFit.scaleDown,
+
+    child: Text(
+      "CONFERMA PRENOTAZIONE",
                 style: TextStyle(
   fontSize: isDesktop
       ? 15
@@ -1887,9 +1565,10 @@ bottomNavigationBar: SafeArea(
   fontWeight: FontWeight.w700,
 
   letterSpacing:
-      isDesktop ? 1.2 : 0.3,
+    isDesktop ? 1.2 : 0.8,
 ),
               ),
+      ),
       ),
     ),
   ),
@@ -1907,8 +1586,8 @@ void dispose() {
   appuntamentiSub?.cancel();
   _controller.dispose();
   _scrollController.dispose();
-
-  super.dispose();
+  nome.dispose();
+    super.dispose();
 }
 
 }
