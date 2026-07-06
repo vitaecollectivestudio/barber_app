@@ -43,3 +43,29 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+# Flutter generated
+.flutter-plugins
+.packages
+build/
+android/build/
+android/app/build/
+
+# Firebase generated
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+
+# iOS / macOS generated
+ios/Pods/
+ios/.symlinks/
+ios/build/
+macos/Pods/
+
+# Xcode user files
+*.xcuserstate
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+DerivedData/
+
+# Backup
+*.bak
