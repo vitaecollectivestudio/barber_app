@@ -23,6 +23,17 @@ class AppointmentDetailsDialog
   @override
   Widget build(BuildContext context) {
 
+final start =
+    data['startAt'] != null
+        ? data['startAt'].toDate()
+        : null;
+
+final ora = start != null
+    ? "${start.hour.toString().padLeft(2, '0')}:${start.minute.toString().padLeft(2, '0')}"
+    : "--:--";
+
+final operatore =
+    data['operatorId'] ?? "-";
     return Stack(
       children: [
 
@@ -145,14 +156,7 @@ textAlign: TextAlign.center,
                   ),
                 ),
 
-                Text(
-                  "${data['ora']} • ${data['operatore']}",
-
-                  style: TextStyle(
-                    color:
-                        Colors.white.withOpacity(0.45),
-                  ),
-                ),
+                
 
                 GestureDetector(
                   onTap: () async {

@@ -13,7 +13,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
@@ -31,44 +30,128 @@ import 'features/auth/login_page.dart';
 import 'features/auth/register_page.dart';
 import 'features/auth/auth_gate.dart';
 import 'features/home/home_page.dart';
+import 'services/notification_service.dart';
 
 
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
 
-Future<void> initNotifications() async {
-  tz.initializeTimeZones();
 
-  const android = AndroidInitializationSettings('@mipmap/ic_launcher');
-  const ios = DarwinInitializationSettings();
+Future<void> saveCurrentFcmToken() async {
+  try {
+    final user = FirebaseAuth.instance.currentUser;
 
-  const settings = InitializationSettings(
-    android: android,
-    iOS: ios,
-  );
+    if (user == null) {
+      debugPrint("FCM: user null, skip");
+      return;
+    }
 
-  await flutterLocalNotificationsPlugin.initialize(settings);
+    final messaging = FirebaseMessaging.instance;
+
+    await messaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
+      String? apnsToken;
+
+      for (int i = 0; i < 20; i++) {
+        apnsToken = await messaging.getAPNSToken();
+
+        if (apnsToken != null) {
+          debugPrint("APNS TOKEN OK: $apnsToken");
+          break;
+        }
+
+        debugPrint("APNS TOKEN non disponibile, retry $i");
+
+        await Future.delayed(
+          const Duration(milliseconds: 500),
+        );
+      }
+
+      if (apnsToken == null) {
+        debugPrint("APNS TOKEN ancora null: non salvo FCM");
+        return;
+      }
+    }
+
+    final token = await messaging.getToken();
+
+    if (token == null) {
+      debugPrint("FCM TOKEN null");
+      return;
+    }
+
+    await FirebaseFirestore.instance
+        .collection('utenti')
+        .doc(user.uid)
+        .set({
+      'fcmToken': token,
+      'fcmTokenUpdatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+
+    debugPrint("FCM TOKEN SAVED: $token");
+  } catch (e) {
+    debugPrint("Errore salvataggio FCM token: $e");
+  }
 }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-  } catch (e) {
-    debugPrint("Firebase già inizializzato");
-  }
 
-  await initNotifications();
+  try {
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+} on FirebaseException catch (e) {
+  if (e.code == 'duplicate-app') {
+    debugPrint("Firebase già inizializzato, continuo.");
+  } else {
+    rethrow;
+  }
+}
+
+ tz.initializeTimeZones();
+ tz.setLocalLocation(
+  tz.getLocation('Europe/Rome'),
+);
+await NotificationService.init();
+
+FirebaseMessaging.instance.onTokenRefresh.listen(
+  (token) async {
+
+    final user =
+        FirebaseAuth.instance.currentUser;
+
+    if (user == null) return;
+
+    await FirebaseFirestore.instance
+        .collection('utenti')
+        .doc(user.uid)
+        .set({
+      'fcmToken': token,
+    }, SetOptions(merge: true));
+
+    debugPrint(
+      "FCM TOKEN UPDATED: $token",
+    );
+  },
+);
 
   // 👇 METTI QUESTO BLOCCO QUI
   if (!kIsWeb) {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
 
     await messaging.requestPermission();
-
+    await saveCurrentFcmToken();
+await FirebaseMessaging.instance
+    .setForegroundNotificationPresentationOptions(
+  alert: true,
+  badge: true,
+  sound: true,
+);
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       final title = message.notification?.title ?? "Notifica";
       final body = message.notification?.body ?? "";
@@ -83,7 +166,23 @@ void main() async {
 await SystemChrome.setPreferredOrientations([
   DeviceOrientation.portraitUp,
 ]);
-  runApp(const MyApp());
+
+SystemChrome.setEnabledSystemUIMode(
+  SystemUiMode.edgeToEdge,
+);
+
+SystemChrome.setSystemUIOverlayStyle(
+  const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    systemNavigationBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.light,
+    statusBarBrightness: Brightness.dark,
+    systemNavigationBarIconBrightness: Brightness.light,
+  ),
+);
+
+runApp(const MyApp());
+
 }
 
 class MyApp extends StatelessWidget {
@@ -298,45 +397,26 @@ class _Logo3DState extends State<Logo3D>
 
 
 
-//////////////// BOOKING //////////////////
-Future<void> scheduleNotification(
-  int id,
-  String title,
-  String body,
-  DateTime scheduledTime,
-) async {
-
-  await flutterLocalNotificationsPlugin.zonedSchedule(
-    id, // 👈 ID controllato
-    title,
-    body,
-    tz.TZDateTime.from(scheduledTime, tz.local),
-    const NotificationDetails(
-      android: AndroidNotificationDetails(
-        'barber_channel',
-        'Barber Notifications',
-        importance: Importance.max,
-        priority: Priority.high,
-      ),
-    ),
-    androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-    uiLocalNotificationDateInterpretation:
-        UILocalNotificationDateInterpretation.absoluteTime,
-  );
-}
-
-
 //////////////// ADMIN //////////////////
-
 Future<void> logoutCompleto() async {
-  await FirebaseAuth.instance.signOut();
-
-  // Google
+  // Google: chiude la sessione locale
   final googleSignIn = GoogleSignIn();
-  await googleSignIn.signOut();
+
+  try {
+    await googleSignIn.signOut();
+  } catch (_) {}
+
+  // Google: revoca il collegamento, così al prossimo login richiede di nuovo scelta/account
+  try {
+    await googleSignIn.disconnect();
+  } catch (_) {
+    // Può fallire se non c'è una sessione Google attiva: normale
+  }
 
   // Facebook
-  await FacebookAuth.instance.logOut();
+  try {
+  } catch (_) {}
+
+  // Firebase per ultimo
+  await FirebaseAuth.instance.signOut();
 }
-
-

@@ -81,7 +81,7 @@ final data = raw is Map<String, dynamic>
 
               final ruolo = data?['ruolo'];
 
-              if (ruolo == 'barber') {
+              if (ruolo == 'barber' || ruolo == 'admin') {
                 return AppBackground(
                   child: BarberPanelPage(),
                 );

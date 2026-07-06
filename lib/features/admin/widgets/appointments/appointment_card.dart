@@ -85,11 +85,11 @@ class _AppointmentCardState
               margin: EdgeInsets.only(
   left: widget.isMobile ? 12 : 16,
   right: widget.isMobile ? 12 : 16,
-  bottom: widget.isMobile ? 18 : 26,
+  bottom: widget.isMobile ? 10 : 26,
 ),
 
               padding: EdgeInsets.all(
-  widget.isMobile ? 12 : 18,
+  widget.isMobile ? 10 : 18,
 ),
 
               decoration: BoxDecoration(
@@ -220,7 +220,7 @@ class _AppointmentCardState
                                   fontSize:
                                       widget
                                               .isMobile
-                                          ? 16
+                                          ? 13
                                           : 19,
                                 ),
                               ),
@@ -301,24 +301,39 @@ overflow: TextOverflow.ellipsis,
 
                         SizedBox(
   height:
-      widget.isMobile ? 10 : 14,
+      widget.isMobile ? 6 : 14,
 ),
 
                         widget.isMobile
-
     ? SingleChildScrollView(
         scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            widget.infoChips,
 
-        child: widget.infoChips,
+            if ((widget.data['telefono'] ?? "")
+                .toString()
+                .isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(left: 8),
+                child: Text(
+                  widget.data['telefono'],
+                  style: const TextStyle(
+                    color: Color(0xFF00C853),
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+          ],
+        ),
       )
-
     : widget.infoChips,
-                        if ((widget.data['telefono'] ?? "")
-    .toString()
-    .isNotEmpty) ...[
-
+                        if (!widget.isMobile &&
+    (widget.data['telefono'] ?? "")
+        .toString()
+        .isNotEmpty) ...[
   const SizedBox(height: 14),
-
   Row(
     mainAxisSize: MainAxisSize.min,
     children: [
@@ -361,12 +376,12 @@ overflow: TextOverflow.ellipsis,
                           EdgeInsets.symmetric(
                         horizontal:
                             widget.isMobile
-                                ? 12
+                                ? 8
                                 : 16,
 
                         vertical:
                             widget.isMobile
-                                ? 12
+                                ? 8
                                 : 16,
                       ),
 

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class PremiumAlertDialog {
-
   static Future<void> show({
     required BuildContext context,
 
@@ -13,117 +12,104 @@ class PremiumAlertDialog {
 
     bool barrierDismissible = true,
   }) async {
+    final size = MediaQuery.of(context).size;
 
-    final width =
-        MediaQuery.of(context).size.width;
+    final titleFontSize = (size.width * 0.050).clamp(18.0, 24.0).toDouble();
 
     showGeneralDialog(
       context: context,
 
-      barrierDismissible:
-          barrierDismissible,
+      barrierDismissible: barrierDismissible,
 
       barrierLabel: "alert",
 
-      barrierColor:
-          Colors.black.withOpacity(0.7),
+      barrierColor: Colors.black.withOpacity(0.7),
 
-      transitionDuration:
-          const Duration(milliseconds: 250),
+      transitionDuration: const Duration(milliseconds: 250),
 
       pageBuilder: (_, __, ___) {
-
-        return Center(
-          child: Material(
-            color: Colors.transparent,
-
-            child: Container(
-              margin:
-                  const EdgeInsets.symmetric(
-                horizontal: 30,
-              ),
-
-              padding:
-                  const EdgeInsets.all(26),
-
-              decoration: BoxDecoration(
-                color: const Color(0xFF181818),
-
-                borderRadius:
-                    BorderRadius.circular(24),
-
-                border: Border.all(
-                  color: Colors.white12,
+        return SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: 420,
+                  maxHeight: size.height - 48,
                 ),
+                child: SingleChildScrollView(
+                  child: Material(
+                    color: Colors.transparent,
 
-                boxShadow: [
-                  BoxShadow(
-                    color:
-                        Colors.black.withOpacity(0.8),
+                    child: Container(
+                      padding: const EdgeInsets.all(26),
 
-                    blurRadius: 30,
-                  ),
-                ],
-              ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF181818),
 
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+                        borderRadius: BorderRadius.circular(24),
 
-                children: [
+                        border: Border.all(color: Colors.white12),
 
-                  Icon(
-                    icon,
-                    color: Colors.white,
-                    size: 34,
-                  ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.8),
 
-                  const SizedBox(height: 14),
+                            blurRadius: 30,
+                          ),
+                        ],
+                      ),
 
-                  Text(
-                    title,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
 
-                    textAlign: TextAlign.center,
+                        children: [
+                          Icon(icon, color: Colors.white, size: 34),
 
-                    style: TextStyle(
-                      color: Colors.white,
+                          const SizedBox(height: 14),
 
-                      fontSize:
-                          width * 0.050,
+                          Text(
+                            title,
 
-                      fontWeight:
-                          FontWeight.bold,
+                            textAlign: TextAlign.center,
+
+                            style: TextStyle(
+                              color: Colors.white,
+
+                              fontSize: titleFontSize,
+
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+
+                          const SizedBox(height: 12),
+
+                          Text(
+                            subtitle,
+
+                            textAlign: TextAlign.center,
+
+                            style: const TextStyle(
+                              color: Colors.white70,
+
+                              fontSize: 14,
+
+                              height: 1.5,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-
-                  const SizedBox(height: 12),
-
-                  Text(
-                    subtitle,
-
-                    textAlign: TextAlign.center,
-
-                    style: const TextStyle(
-                      color: Colors.white70,
-
-                      fontSize: 14,
-
-                      height: 1.5,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
         );
       },
 
-      transitionBuilder:
-          (_, animation, __, child) {
-
-        return FadeTransition(
-          opacity: animation,
-          child: child,
-        );
+      transitionBuilder: (_, animation, __, child) {
+        return FadeTransition(opacity: animation, child: child);
       },
     );
   }

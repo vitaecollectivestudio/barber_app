@@ -6,6 +6,7 @@ import '../../app_background.dart';
 import '../../inserisci_telefono_page.dart';
 import '../home/home_page.dart';
 import 'login_page.dart';
+
 import '../admin/pages/barber_panel_page.dart';
 
 class AuthGate extends StatelessWidget {
@@ -79,7 +80,7 @@ final data = raw is Map<String, dynamic>
 
               final ruolo = data?['ruolo'];
 
-              if (ruolo == 'barber') {
+              if (ruolo == 'barber' || ruolo == 'admin') {
                 return AppBackground(
                   child: BarberPanelPage(),
                 );

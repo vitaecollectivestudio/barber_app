@@ -1,0 +1,203 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+  
+
+match /availability_public/{docId} {
+  allow read: if true;
+}
+
+match /operator_schedules/{document=**} {
+  allow read: if true;
+}
+
+match /giorni_chiusi/{docId} {
+  allow read: if true;
+}
+
+match /appuntamenti/{id} {
+
+  allow read: if isStaff()
+    || request.auth.uid == resource.data.userId;
+
+  allow create: if false;
+
+  allow update: if false;
+
+  allow delete: if false;
+}
+
+  match /operator_schedules/{operatorId} {
+
+  allow read: if true;
+
+  allow write: if isStaff();
+
+  match /weekly/{dayId} {
+
+    allow read: if true;
+
+    allow write: if isStaff();
+  }
+}
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function userRole() {
+
+  return exists(
+    /databases/$(database)/documents/utenti/$(request.auth.uid)
+  )
+
+  ? get(
+      /databases/$(database)/documents/utenti/$(request.auth.uid)
+    ).data.ruolo
+
+  : "cliente";
+}
+
+    function isStaff() {
+      return userRole() == "barber" ||
+             userRole() == "admin";
+    }
+
+    // =========================
+    // UTENTI
+    // =========================
+
+    match /utenti/{uid} {
+
+      // leggere:
+      allow get: if isSelf(uid) || isStaff();
+
+      // lista utenti:
+      allow list: if isStaff();
+
+      // creazione account:
+allow create: if isSelf(uid)
+  && request.resource.data.ruolo == "cliente";
+      // update profilo proprio:
+     allow update: if isSelf(uid)
+&& request.resource.data.ruolo == resource.data.ruolo;
+
+      // delete vietato dal client:
+// usare solo la Cloud Function deleteClientAccount
+allow delete: if false;
+    }
+
+    // =========================
+    // ORARI BLOCCATI
+    // =========================
+
+    match /orari_bloccati/{id} {
+
+      allow read: if true;
+
+      allow write: if isStaff();
+    }
+
+    // =========================
+    // GIORNI CHIUSI
+    // =========================
+
+    match /giorni_chiusi/{id} {
+
+      allow read: if true;
+
+      allow write: if isStaff();
+    }
+
+    // =========================
+    // LISTA ATTESA
+    // =========================
+
+    match /lista_attesa/{id} {
+
+  allow get, list: if isStaff()
+    || (
+      signedIn()
+      && resource.data.userId == request.auth.uid
+    );
+
+  allow create: if signedIn()
+  && request.resource.data.keys().hasOnly([
+    "userId",
+    "operatore",
+    "servizio",
+    "data",
+    "dateKey",
+    "fcmToken",
+    "notified",
+    "creatoIl"
+  ])
+  && request.resource.data.userId == request.auth.uid
+  && request.resource.data.operatore is string
+  && request.resource.data.servizio is string
+  && request.resource.data.dateKey is string
+  && request.resource.data.data is timestamp
+  && request.resource.data.notified == false;
+
+  allow update: if isStaff();
+
+  allow delete: if isStaff()
+    || (
+      signedIn()
+      && resource.data.userId == request.auth.uid
+    );
+}
+
+    // =========================
+    // WALKIN
+    // =========================
+
+    match /walkin/{id} {
+
+      allow read, write: if isStaff();
+    }
+
+    // =========================
+    // DEFAULT DENY
+    // =========================
+
+match /services/{id} {
+
+  allow read: if true;
+
+  allow write: if isStaff();
+}
+
+// =========================
+// AVAILABILITY PUBLIC
+// =========================
+
+match /availability_public/{id} {
+
+  allow read: if true;
+
+  allow write: if false;
+}
+
+// =========================
+// OPERATORS
+// =========================
+
+match /operators/{id} {
+
+  allow read: if true;
+
+  allow write: if isStaff();
+}
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+  }
+}

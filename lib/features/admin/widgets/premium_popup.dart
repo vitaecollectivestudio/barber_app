@@ -7,138 +7,129 @@ Future<void> premiumPopup({
   required IconData icon,
   required Color color,
 }) async {
-
   showDialog(
     context: context,
     barrierColor: Colors.black.withOpacity(0.45),
 
-    builder: (_) => Dialog(
-      backgroundColor: Colors.transparent,
+    builder: (dialogContext) {
+      final mediaSize = MediaQuery.sizeOf(dialogContext);
+      final dialogWidth = (mediaSize.width - 36).clamp(0.0, 320.0).toDouble();
 
-      child: TweenAnimationBuilder(
-        duration: const Duration(milliseconds: 250),
-        tween: Tween(begin: 0.8, end: 1.0),
+      return Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
 
-        builder: (context, value, child) {
-          return Transform.scale(
-            scale: value,
-            child: Opacity(
-              opacity: value,
-              child: child,
-            ),
-          );
-        },
+        child: TweenAnimationBuilder(
+          duration: const Duration(milliseconds: 250),
+          tween: Tween(begin: 0.8, end: 1.0),
 
-        child: Container(
-          width: 320,
-          padding: const EdgeInsets.all(26),
+          builder: (context, value, child) {
+            return Transform.scale(
+              scale: value,
+              child: Opacity(opacity: value, child: child),
+            );
+          },
 
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(30),
+          child: SingleChildScrollView(
+            child: Container(
+              width: dialogWidth,
+              padding: const EdgeInsets.all(26),
 
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color(0xFF1A1A1A),
-                Color(0xFF0F0F0F),
-              ],
-            ),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
 
-            border: Border.all(
-              color: Colors.white.withOpacity(0.05),
-            ),
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFF1A1A1A), Color(0xFF0F0F0F)],
+                ),
 
-            boxShadow: [
+                border: Border.all(color: Colors.white.withOpacity(0.05)),
 
-              BoxShadow(
-                color: Colors.black.withOpacity(0.65),
-                blurRadius: 35,
-                offset: const Offset(0, 15),
-              ),
-
-              BoxShadow(
-                color: color.withOpacity(0.18),
-                blurRadius: 30,
-                spreadRadius: 1,
-              ),
-            ],
-          ),
-
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-
-              Container(
-                width: 72,
-                height: 72,
-
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-
-                  gradient: LinearGradient(
-                    colors: [
-                      color.withOpacity(0.25),
-                      color.withOpacity(0.12),
-                    ],
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.65),
+                    blurRadius: 35,
+                    offset: const Offset(0, 15),
                   ),
 
-                  boxShadow: [
-                    BoxShadow(
-                      color: color.withOpacity(0.35),
-                      blurRadius: 25,
+                  BoxShadow(
+                    color: color.withOpacity(0.18),
+                    blurRadius: 30,
+                    spreadRadius: 1,
+                  ),
+                ],
+              ),
+
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 72,
+                    height: 72,
+
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+
+                      gradient: LinearGradient(
+                        colors: [
+                          color.withOpacity(0.25),
+                          color.withOpacity(0.12),
+                        ],
+                      ),
+
+                      boxShadow: [
+                        BoxShadow(
+                          color: color.withOpacity(0.35),
+                          blurRadius: 25,
+                        ),
+                      ],
                     ),
-                  ],
-                ),
 
-                child: Icon(
-                  icon,
-                  color: color,
-                  size: 34,
-                ),
+                    child: Icon(icon, color: color, size: 34),
+                  ),
+
+                  const SizedBox(height: 22),
+
+                  Text(
+                    title,
+
+                    textAlign: TextAlign.center,
+
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1,
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  Text(
+                    subtitle,
+
+                    textAlign: TextAlign.center,
+
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.65),
+                      fontSize: 14,
+                      height: 1.5,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
-
-              const SizedBox(height: 22),
-
-              Text(
-                title,
-
-                textAlign: TextAlign.center,
-
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1,
-                ),
-              ),
-
-              const SizedBox(height: 10),
-
-              Text(
-                subtitle,
-
-                textAlign: TextAlign.center,
-
-                style: TextStyle(
-                  color: Colors.white.withOpacity(0.65),
-                  fontSize: 14,
-                  height: 1.5,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
+            ),
           ),
         ),
-      ),
-    ),
+      );
+    },
   );
 
-  await Future.delayed(
-  const Duration(seconds: 2),
-);
+  await Future.delayed(const Duration(seconds: 2));
 
-if (context.mounted) {
-  Navigator.of(context, rootNavigator: true).maybePop();
-}
+  if (context.mounted) {
+    Navigator.of(context, rootNavigator: true).maybePop();
+  }
 }

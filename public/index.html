@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta name="google-site-verification" content="3tEvWns1y8bz7BVHnJklrglTqmbpH2AA1JsgmD9KqAA" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VITÆ Collective Studio</title>
+  <meta name="description" content="VITÆ Collective Studio è l'app ufficiale per prenotare servizi barber, gestire appuntamenti e ricevere notifiche.">
+
+  <style>
+    :root {
+      --bg: #050505;
+      --panel: rgba(255,255,255,0.055);
+      --panel-strong: rgba(255,255,255,0.09);
+      --text: #ffffff;
+      --muted: rgba(255,255,255,0.68);
+      --soft: rgba(255,255,255,0.42);
+      --green: #69F0AE;
+      --green-dark: #00C853;
+      --border: rgba(255,255,255,0.11);
+      --shadow: rgba(0,0,0,0.52);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 50% -10%, rgba(105,240,174,0.18), transparent 35%),
+        radial-gradient(circle at 10% 20%, rgba(255,255,255,0.07), transparent 28%),
+        radial-gradient(circle at 90% 18%, rgba(105,240,174,0.08), transparent 28%),
+        linear-gradient(180deg, #101010 0%, var(--bg) 58%, #020202 100%);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      line-height: 1.6;
+    }
+
+    .wrap {
+      width: min(1040px, calc(100% - 34px));
+      margin: 0 auto;
+      padding: 34px 0 64px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 34px;
+    }
+
+    .nav {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.035);
+      border: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(18px);
+    }
+
+    .nav a {
+      color: rgba(255,255,255,0.76);
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.4px;
+      padding: 9px 14px;
+      border-radius: 999px;
+      transition: 0.2s ease;
+    }
+
+    .nav a:hover {
+      color: #050505;
+      background: var(--green);
+    }
+
+    .hero {
+      text-align: center;
+      padding: clamp(34px, 6vw, 76px);
+      border-radius: 40px;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,0.11), rgba(255,255,255,0.026)),
+        var(--panel);
+      border: 1px solid var(--border);
+      box-shadow: 0 34px 110px var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(105,240,174,0.17), transparent 34%),
+        radial-gradient(circle at 50% 100%, rgba(255,255,255,0.06), transparent 34%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .logo-wrap {
+      width: 124px;
+      height: 124px;
+      margin: 0 auto 24px;
+      border-radius: 34px;
+      display: grid;
+      place-items: center;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,0.16), rgba(255,255,255,0.035));
+      border: 1px solid rgba(255,255,255,0.14);
+      box-shadow:
+        0 24px 60px rgba(0,0,0,0.45),
+        0 0 48px rgba(105,240,174,0.12);
+    }
+
+    .logo {
+      width: 86px;
+      height: 86px;
+      border-radius: 24px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .logo-fallback {
+      width: 86px;
+      height: 86px;
+      border-radius: 24px;
+      display: grid;
+      place-items: center;
+      color: var(--green);
+      font-size: 46px;
+      font-weight: 950;
+      letter-spacing: -3px;
+      background: rgba(0,0,0,0.22);
+      border: 1px solid rgba(105,240,174,0.16);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 13px;
+      border-radius: 999px;
+      color: var(--green);
+      background: rgba(105,240,174,0.095);
+      border: 1px solid rgba(105,240,174,0.18);
+      font-size: 12px;
+      font-weight: 950;
+      letter-spacing: 1.7px;
+      text-transform: uppercase;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--green);
+      box-shadow: 0 0 14px rgba(105,240,174,0.9);
+    }
+
+    h1 {
+      margin: 24px 0 16px;
+      font-size: clamp(42px, 8vw, 82px);
+      line-height: 0.92;
+      letter-spacing: -3.8px;
+    }
+
+    .lead {
+      color: var(--muted);
+      font-size: clamp(15px, 2vw, 18px);
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    .lead strong {
+      color: #ffffff;
+      font-weight: 900;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0 20px;
+      border-radius: 17px;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 950;
+      letter-spacing: 0.4px;
+      transition: 0.2s ease;
+    }
+
+    .button.primary {
+      background: linear-gradient(135deg, var(--green), var(--green-dark));
+      color: #050505;
+      box-shadow: 0 18px 40px rgba(0,200,83,0.22);
+    }
+
+    .button.secondary {
+      color: #ffffff;
+      border: 1px solid rgba(255,255,255,0.11);
+      background: rgba(255,255,255,0.05);
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 22px;
+    }
+
+    .card {
+      padding: 22px;
+      border-radius: 26px;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,0.075), rgba(255,255,255,0.028));
+      border: 1px solid rgba(255,255,255,0.085);
+      min-height: 168px;
+    }
+
+    .card-number {
+      width: 34px;
+      height: 34px;
+      border-radius: 13px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 15px;
+      color: var(--green);
+      background: rgba(105,240,174,0.09);
+      border: 1px solid rgba(105,240,174,0.16);
+      font-size: 13px;
+      font-weight: 950;
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      letter-spacing: -0.4px;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .info {
+      margin-top: 16px;
+      padding: 24px;
+      border-radius: 28px;
+      background: rgba(255,255,255,0.035);
+      border: 1px solid rgba(255,255,255,0.075);
+      text-align: center;
+    }
+
+    .info p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .info strong {
+      color: #ffffff;
+    }
+
+    .footer {
+      margin-top: 34px;
+      text-align: center;
+      color: rgba(255,255,255,0.36);
+      font-size: 12px;
+      letter-spacing: 0.8px;
+      font-weight: 800;
+    }
+
+    .footer-line {
+      width: 58px;
+      height: 1px;
+      margin: 0 auto 14px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.34), transparent);
+    }
+
+    @media (max-width: 780px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        letter-spacing: -2.6px;
+      }
+
+      .logo-wrap {
+        width: 110px;
+        height: 110px;
+        border-radius: 30px;
+      }
+
+      .logo,
+      .logo-fallback {
+        width: 78px;
+        height: 78px;
+      }
+    }
+
+    @media (max-width: 460px) {
+      .wrap {
+        width: min(100% - 28px, 1040px);
+        padding-top: 24px;
+      }
+
+      .hero {
+        border-radius: 30px;
+        padding: 30px 20px;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+
+      .button {
+        width: 100%;
+      }
+
+      .nav {
+        border-radius: 22px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <nav class="nav" aria-label="Navigazione">
+        <a href="https://vitae-3ee57.web.app/privacy-policy.html">Privacy Policy</a>
+        <a href="https://vitae-3ee57.web.app/eliminazione-account.html">Eliminazione account</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-inner">
+
+          <!-- LOGO CENTRALE -->
+          <!-- Quando hai il logo, metti il file in public/logo.png e sostituisci il fallback sotto -->
+          <div class="logo-wrap">
+  <img class="logo" src="logo.png" alt="Logo VITÆ Collective Studio">
+</div>
+
+          <div class="eyebrow"><span class="dot"></span> App ufficiale</div>
+
+          <h1>VITÆ Collective Studio</h1>
+
+          <p class="lead">
+            <strong>VITÆ Collective Studio</strong> è l’app ufficiale di VITÆ Collective Studio.
+            L’app consente agli utenti di creare un account, accedere con Google o Apple,
+            prenotare servizi barber, scegliere operatori e servizi disponibili,
+            consultare e gestire le proprie prenotazioni, ricevere notifiche relative agli
+            appuntamenti e richiedere l’eliminazione del proprio account.
+          </p>
+
+          <div class="actions">
+            <a class="button primary" href="https://vitae-3ee57.web.app/privacy-policy.html">Privacy Policy</a>
+            <a class="button secondary" href="https://vitae-3ee57.web.app/eliminazione-account.html">Eliminazione account</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid" aria-label="Funzioni principali">
+        <div class="card">
+          <div class="card-number">01</div>
+          <h2>Prenotazioni barber</h2>
+          <p>
+            I clienti possono scegliere il servizio desiderato, selezionare operatori disponibili
+            e prenotare un appuntamento presso VITÆ Collective Studio.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="card-number">02</div>
+          <h2>Gestione appuntamenti</h2>
+          <p>
+            L’app permette di consultare le proprie prenotazioni, ricevere aggiornamenti
+            e gestire le comunicazioni legate agli appuntamenti.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="card-number">03</div>
+          <h2>Account cliente</h2>
+          <p>
+            Gli utenti possono accedere con email, Google o Apple e richiedere
+            l’eliminazione del proprio account secondo le norme sulla privacy.
+          </p>
+        </div>
+      </section>
+
+      <section class="info">
+        <p>
+          Questa applicazione è destinata ai clienti di <strong>VITÆ Collective Studio</strong>
+          e ha lo scopo di semplificare la prenotazione dei servizi barber e la gestione
+          delle comunicazioni tra cliente e studio.
+        </p>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-line"></div>
+      VITÆ COLLECTIVE STUDIO
+    </footer>
+  </div>
+</body>
+</html>

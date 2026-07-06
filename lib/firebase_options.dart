@@ -53,14 +53,12 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyAueUb_4rmF5DgXWR9tb2dYRrbvScvDG2k',
-    appId: '1:54159583135:android:dabe5f1ef957043384bfaa',
+    appId: '1:54159583135:android:fb1beed13c854bcd84bfaa',
     messagingSenderId: '54159583135',
     projectId: 'vitae-3ee57',
     databaseURL: 'https://vitae-3ee57-default-rtdb.firebaseio.com',
     storageBucket: 'vitae-3ee57.firebasestorage.app',
   );
-
-
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyDbIlGznuIU6QGMh7Utt77Bmzh-qwiydok',
     appId: '1:209989432554:ios:c975a46955c2b351545393',
@@ -71,11 +69,14 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-  apiKey: 'AIzaSyAueUb_4rmF5DgXWR9tb2dYRrbvScvDG2k',
-  appId: '1:54159583135:ios:4fc155fb4458b25984bfaa',
-  messagingSenderId: '54159583135',
-  projectId: 'vitae-3ee57',
-  storageBucket: 'vitae-3ee57.firebasestorage.app',
-  iosBundleId: 'com.vitaecollectivestudio.barberapp',
-);
+    apiKey: 'AIzaSyAEDsqKcqzGwmfo8cmm8zSSl8G8sI89Gc4',
+    appId: '1:54159583135:ios:4fc155fb4458b25984bfaa',
+    messagingSenderId: '54159583135',
+    projectId: 'vitae-3ee57',
+    databaseURL: 'https://vitae-3ee57-default-rtdb.firebaseio.com',
+    storageBucket: 'vitae-3ee57.firebasestorage.app',
+    androidClientId: '54159583135-3339qombb6po6s4gnv9vbq7darv4598l.apps.googleusercontent.com',
+    iosClientId: '54159583135-ac6c08j2fcvqt2k6uj24a8ghvipbj8v8.apps.googleusercontent.com',
+    iosBundleId: 'com.vitaecollectivestudio.barberapp',
+  );
 }

@@ -4,7 +4,7 @@
       "android": {
         "default": {
           "projectId": "vitae-3ee57",
-          "appId": "1:54159583135:android:dabe5f1ef957043384bfaa",
+          "appId": "1:54159583135:android:fb1beed13c854bcd84bfaa",
           "fileOutput": "android/app/google-services.json"
         }
       },
@@ -12,14 +12,69 @@
         "lib/firebase_options.dart": {
           "projectId": "vitae-3ee57",
           "configurations": {
-            "android": "1:54159583135:android:dabe5f1ef957043384bfaa",
-            "web": "1:54159583135:web:69be211c59956c9384bfaa"
+            "android": "1:54159583135:android:fb1beed13c854bcd84bfaa",
+            "ios": "1:54159583135:ios:4fc155fb4458b25984bfaa"
           }
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "vitae-3ee57",
+          "appId": "1:54159583135:ios:4fc155fb4458b25984bfaa",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
         }
       }
     }
   },
-  "functions": {
-  "source": "functions"
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "functions": [
+    {
+      "source": "vitaecollectivestudio",
+      "codebase": "vitaecollectivestudio",
+      "disallowLegacyRuntimeConfig": true,
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint",
+        "npm --prefix \"$RESOURCE_DIR\" run build"
+      ]
+    }
+  ],
+  "storage": {
+    "rules": "storage.rules"
+  },
+ "hosting": {
+  "public": "public",
+  "ignore": [
+    "firebase.json",
+    "**/.*",
+    "**/node_modules/**"
+  ],
+  "headers": [
+    {
+      "source": "**",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate, max-age=0"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "**",
+      "destination": "/index.html"
+    }
+  ]
 }
 }

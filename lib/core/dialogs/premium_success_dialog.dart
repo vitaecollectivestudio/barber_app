@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class PremiumSuccessDialog {
-
   static Future<void> show({
     required BuildContext context,
 
@@ -11,12 +10,11 @@ class PremiumSuccessDialog {
 
     IconData icon = Icons.check,
 
-    Duration duration =
-        const Duration(seconds: 2),
+    Duration duration = const Duration(seconds: 2),
   }) async {
+    final size = MediaQuery.of(context).size;
 
-    final width =
-        MediaQuery.of(context).size.width;
+    final titleFontSize = (size.width * 0.048).clamp(18.0, 24.0).toDouble();
 
     showGeneralDialog(
       context: context,
@@ -25,127 +23,111 @@ class PremiumSuccessDialog {
 
       barrierLabel: "success",
 
-      barrierColor:
-          Colors.black.withOpacity(0.6),
+      barrierColor: Colors.black.withOpacity(0.6),
 
-      transitionDuration:
-          const Duration(milliseconds: 250),
+      transitionDuration: const Duration(milliseconds: 250),
 
       pageBuilder: (_, __, ___) {
-
-        return Center(
-          child: Material(
-            color: Colors.transparent,
-
-            child: Container(
-              margin:
-                  const EdgeInsets.symmetric(
-                horizontal: 30,
-              ),
-
-              padding:
-                  const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 28,
-              ),
-
-              decoration: BoxDecoration(
-                color: const Color(0xFF181818),
-
-                borderRadius:
-                    BorderRadius.circular(20),
-
-                border: Border.all(
-                  color:
-                      Colors.white.withOpacity(0.05),
+        return SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: 420,
+                  maxHeight: size.height - 48,
                 ),
+                child: SingleChildScrollView(
+                  child: Material(
+                    color: Colors.transparent,
 
-                boxShadow: [
-                  BoxShadow(
-                    color:
-                        Colors.black.withOpacity(0.8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 28,
+                      ),
 
-                    blurRadius: 30,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF181818),
 
-                    offset:
-                        const Offset(0, 10),
-                  ),
-                ],
-              ),
+                        borderRadius: BorderRadius.circular(20),
 
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.05),
+                        ),
 
-                children: [
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.8),
 
-                  Icon(
-                    icon,
-                    color: Colors.white,
-                    size: 32,
-                  ),
+                            blurRadius: 30,
 
-                  const SizedBox(height: 12),
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
 
-                  Text(
-                    title,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
 
-                    textAlign: TextAlign.center,
+                        children: [
+                          Icon(icon, color: Colors.white, size: 32),
 
-                    style: TextStyle(
-                      color: Colors.white,
+                          const SizedBox(height: 12),
 
-                      fontSize:
-                          width * 0.048,
+                          Text(
+                            title,
 
-                      fontWeight:
-                          FontWeight.w700,
+                            textAlign: TextAlign.center,
 
-                      letterSpacing: 0.3,
+                            style: TextStyle(
+                              color: Colors.white,
+
+                              fontSize: titleFontSize,
+
+                              fontWeight: FontWeight.w700,
+
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+
+                          const SizedBox(height: 10),
+
+                          Text(
+                            subtitle,
+
+                            textAlign: TextAlign.center,
+
+                            style: const TextStyle(
+                              color: Colors.white70,
+
+                              fontSize: 14,
+
+                              height: 1.5,
+
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-
-                  const SizedBox(height: 10),
-
-                  Text(
-                    subtitle,
-
-                    textAlign: TextAlign.center,
-
-                    style: const TextStyle(
-                      color: Colors.white70,
-
-                      fontSize: 14,
-
-                      height: 1.5,
-
-                      fontWeight:
-                          FontWeight.w600,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
         );
       },
 
-      transitionBuilder:
-          (_, animation, __, child) {
-
-        return FadeTransition(
-          opacity: animation,
-          child: child,
-        );
+      transitionBuilder: (_, animation, __, child) {
+        return FadeTransition(opacity: animation, child: child);
       },
     );
 
     await Future.delayed(duration);
 
     if (Navigator.canPop(context)) {
-      Navigator.of(
-        context,
-        rootNavigator: true,
-      ).pop();
+      Navigator.of(context, rootNavigator: true).pop();
     }
   }
 }

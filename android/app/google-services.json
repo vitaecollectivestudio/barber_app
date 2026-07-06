@@ -38,6 +38,65 @@
             {
               "client_id": "54159583135-d7bchbeg8tg6d7ertr9ssnne4fd970id.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "54159583135-ac6c08j2fcvqt2k6uj24a8ghvipbj8v8.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.vitaecollectivestudio.barberapp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:54159583135:android:fb1beed13c854bcd84bfaa",
+        "android_client_info": {
+          "package_name": "com.vitaecollectivestudio.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "54159583135-96bo2oam8s099ublqpktm5ff62seqsei.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vitaecollectivestudio.app",
+            "certificate_hash": "bcc3f14757ab68e6b2bc9b6d8fe47ea70e900b86"
+          }
+        },
+        {
+          "client_id": "54159583135-dbtj2gd2kneh5s9594ukef51qmle9rsa.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vitaecollectivestudio.app",
+            "certificate_hash": "bf35f3c64fe7684ec7187697e7acd04f1508c4ca"
+          }
+        },
+        {
+          "client_id": "54159583135-d7bchbeg8tg6d7ertr9ssnne4fd970id.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAueUb_4rmF5DgXWR9tb2dYRrbvScvDG2k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "54159583135-d7bchbeg8tg6d7ertr9ssnne4fd970id.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "54159583135-ac6c08j2fcvqt2k6uj24a8ghvipbj8v8.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.vitaecollectivestudio.barberapp"
+              }
             }
           ]
         }
