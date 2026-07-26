@@ -34,46 +34,75 @@ Widget _legalTextAction({
   required String label,
   required VoidCallback onTap,
 }) {
-  return LayoutBuilder(
-    builder: (context, constraints) {
+  return StatefulBuilder(
+    builder: (context, setHoverState) {
       final width = MediaQuery.of(context).size.width;
       final isSmall = width < 390;
+      bool isHovering = false;
 
-      return Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: onTap,
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: isSmall ? 6 : 8,
-              vertical: isSmall ? 5 : 6,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  icon,
-                  size: isSmall ? 12.5 : 13.5,
-                  color: const Color(0xFF69F0AE).withOpacity(0.72),
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  label,
-                  maxLines: 1,
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.58),
-                    fontSize: isSmall ? 10.3 : 11.2,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.35,
-                    decorationColor: Colors.white.withOpacity(0.22),
-                    decorationThickness: 1,
+      return StatefulBuilder(
+        builder: (context, setInnerState) {
+          return MouseRegion(
+            cursor: SystemMouseCursors.click,
+            onEnter: (_) => setInnerState(() => isHovering = true),
+            onExit: (_) => setInnerState(() => isHovering = false),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(999),
+                onTap: onTap,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isSmall ? 9 : 11,
+                    vertical: isSmall ? 6 : 7,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isHovering
+                        ? Colors.white.withOpacity(0.10)
+                        : Colors.white.withOpacity(0.045),
+                    borderRadius: BorderRadius.circular(999),
+                    border: Border.all(
+                      color: isHovering
+                          ? Colors.white.withOpacity(0.26)
+                          : Colors.white.withOpacity(0.10),
+                    ),
+                    boxShadow: [
+                      if (isHovering)
+                        BoxShadow(
+                          color: Colors.white.withOpacity(0.08),
+                          blurRadius: 18,
+                          offset: const Offset(0, 8),
+                        ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        icon,
+                        size: isSmall ? 11.5 : 12.5,
+                        color: Colors.white.withOpacity(0.82),
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.78),
+                          fontSize: isSmall ? 9.4 : 10.2,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.35,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       );
     },
   );
@@ -209,45 +238,380 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<void> apriRecensioneGoogle() async {
-    final url = Uri.parse("https://g.page/r/TUO-LINK-GOOGLE/review");
+Widget _skeletonLine({
+  required double width,
+  required double height,
+  double radius = 999,
+}) {
+  return Container(
+    width: width,
+    height: height,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(radius),
+      gradient: LinearGradient(
+        begin: Alignment.centerLeft,
+        end: Alignment.centerRight,
+        colors: [
+          Colors.white.withOpacity(0.10),
+          Colors.white.withOpacity(0.045),
+          Colors.white.withOpacity(0.08),
+        ],
+      ),
+      border: Border.all(
+        color: Colors.white.withOpacity(0.025),
+      ),
+    ),
+  );
+}
 
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
-    }
-  }
+Widget _premiumServicesSkeleton() {
+  final horizontalPadding = Responsive.horizontalPadding(context);
+  final isDesktop = Responsive.isDesktop(context);
 
-  Future<void> apriPrivacyPolicy() async {
-    final url = Uri.parse("https://vitae-3ee57.web.app/privacy-policy.html");
+  final iconSize = isDesktop ? 62.0 : 54.0;
+  final cardPadding = isDesktop ? 24.0 : 18.0;
+  final priceWidth = isDesktop ? 72.0 : 60.0;
 
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
-    }
-  }
+  return Column(
+    children: List.generate(3, (index) {
+      return TweenAnimationBuilder<double>(
+        duration: Duration(milliseconds: 420 + (index * 120)),
+        tween: Tween(begin: 0.0, end: 1.0),
+        curve: Curves.easeOutCubic,
+        builder: (context, value, child) {
+          return Opacity(
+            opacity: value,
+            child: Transform.translate(
+              offset: Offset(0, 16 * (1 - value)),
+              child: child,
+            ),
+          );
+        },
+        child: Container(
+          margin: EdgeInsets.symmetric(
+            horizontal: horizontalPadding,
+            vertical: isDesktop ? 12 : 10,
+          ),
+          padding: EdgeInsets.all(cardPadding),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF232323),
+                Color(0xFF161616),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.05),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.45),
+                blurRadius: 18,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: iconSize,
+                height: iconSize,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.white.withOpacity(0.08),
+                      Colors.white.withOpacity(0.025),
+                    ],
+                  ),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.06),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _skeletonLine(width: double.infinity, height: 18),
+                    const SizedBox(height: 10),
+                    _skeletonLine(width: double.infinity, height: 12),
+                    const SizedBox(height: 7),
+                    _skeletonLine(width: 150, height: 12),
+                    const SizedBox(height: 12),
+                    _skeletonLine(width: 72, height: 12),
+                  ],
+                ),
+              ),
+              SizedBox(
+                width: priceWidth,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    _skeletonLine(width: 42, height: 18),
+                    const SizedBox(height: 12),
+                    _skeletonLine(width: 28, height: 28, radius: 999),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }),
+  );
+}
 
-  Future<void> apriEliminazioneAccount() async {
-    final url = Uri.parse(
-      "https://vitae-3ee57.web.app/eliminazione-account.html",
+void _showPremiumInfoPopup({
+  required IconData icon,
+  required Color iconColor,
+  required String title,
+  required String message,
+}) {
+  if (!mounted) return;
+
+  showDialog(
+    context: context,
+    barrierColor: Colors.black.withOpacity(0.78),
+    builder: (dialogContext) {
+      final media = MediaQuery.of(dialogContext);
+      final isSmall = media.size.width < 380;
+
+      return Dialog(
+        insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: 430,
+              maxHeight: media.size.height * 0.82,
+            ),
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(32),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
+                  child: Container(
+                    padding: EdgeInsets.fromLTRB(
+                      isSmall ? 22 : 28,
+                      isSmall ? 24 : 30,
+                      isSmall ? 22 : 28,
+                      isSmall ? 22 : 26,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(32),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          const Color(0xFF1B1B1B).withOpacity(0.98),
+                          const Color(0xFF080808).withOpacity(0.99),
+                        ],
+                      ),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.09),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.70),
+                          blurRadius: 38,
+                          offset: const Offset(0, 22),
+                        ),
+                        BoxShadow(
+                          color: Colors.white.withOpacity(0.035),
+                          blurRadius: 24,
+                          spreadRadius: 1,
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: isSmall ? 66 : 72,
+                          height: isSmall ? 66 : 72,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: RadialGradient(
+                              colors: [
+                                Colors.white.withOpacity(0.16),
+                                Colors.white.withOpacity(0.06),
+                                Colors.white.withOpacity(0.02),
+                              ],
+                            ),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.16),
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.white.withOpacity(0.06),
+                                blurRadius: 22,
+                                spreadRadius: 1,
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            icon,
+                            color: Colors.white.withOpacity(0.92),
+                            size: isSmall ? 30 : 33,
+                          ),
+                        ),
+
+                        const SizedBox(height: 22),
+
+                        Text(
+                          title.toUpperCase(),
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.62),
+                            fontSize: isSmall ? 12 : 13,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 2.4,
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        Text(
+                          message,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.94),
+                            fontSize: isSmall ? 22 : 24,
+                            fontWeight: FontWeight.w800,
+                            height: 1.12,
+                            letterSpacing: 0.1,
+                          ),
+                        ),
+
+                        const SizedBox(height: 14),
+
+                        Container(
+                          width: 54,
+                          height: 1.5,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(999),
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.transparent,
+                                Colors.white.withOpacity(0.42),
+                                Colors.transparent,
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        SizedBox(
+                          width: double.infinity,
+                          height: 52,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.of(dialogContext).pop();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white.withOpacity(0.92),
+                              foregroundColor: Colors.black,
+                              elevation: 0,
+                              shadowColor: Colors.transparent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18),
+                              ),
+                            ),
+                            child: const Text(
+                              "HO CAPITO",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 1.1,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
+
+Future<void> _openExternalPage({
+  required String rawUrl,
+  required String errorTitle,
+  required String errorMessage,
+}) async {
+  final url = Uri.parse(rawUrl);
+
+  var opened = false;
+
+  try {
+    opened = await launchUrl(
+      url,
+      mode: LaunchMode.externalApplication,
     );
 
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
+    if (!opened) {
+      opened = await launchUrl(
+        url,
+        mode: LaunchMode.platformDefault,
+      );
     }
+  } catch (_) {
+    opened = false;
   }
+
+  if (!opened && mounted) {
+    _showPremiumInfoPopup(
+      icon: Icons.link_off_rounded,
+      iconColor: Colors.redAccent,
+      title: errorTitle,
+      message: errorMessage,
+    );
+  }
+}
+
+  Future<void> apriRecensioneGoogle() async {
+  _showPremiumInfoPopup(
+    icon: Icons.star_rounded,
+    iconColor: const Color(0xFFFFD54F),
+    title: "Recensioni",
+    message: "La possibilità di lasciare recensioni sarà a breve disponibile.",
+  );
+}
+
+Future<void> apriPrivacyPolicy() async {
+  await _openExternalPage(
+    rawUrl: "https://vitae-3ee57.web.app/privacy-policy.html",
+    errorTitle: "Privacy Policy",
+    errorMessage: "Non siamo riusciti ad aprire la Privacy Policy. Riprova tra qualche secondo.",
+  );
+}
+
+Future<void> apriEliminazioneAccount() async {
+  await _openExternalPage(
+    rawUrl: "https://vitae-3ee57.web.app/eliminazione-account.html",
+    errorTitle: "Eliminazione account",
+    errorMessage: "Non siamo riusciti ad aprire la pagina di eliminazione account. Riprova tra qualche secondo.",
+  );
+}
 
   int? pressedIndex;
   bool pressedInvite = false;
   late final Stream<List<ServiceModel>> _servicesStream;
-
-  Future<void> invitaAmici() async {
-    final url = Uri.parse(
-      "https://wa.me/?text=🔥 Scarica l'applicazione di VITÆ | Collective Studio. Sarà utile per prenotare dal barbiere. 💈\n\nScaricala qui: https://tuo-link-app",
-    );
-
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url);
-    }
-  }
 
   @override
   void initState() {
@@ -775,115 +1139,116 @@ class _HomePageState extends State<HomePage> {
                                         ),
                                       ],
                                     ),
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          width: isDesktop ? 58 : 52,
-                                          height: isDesktop ? 58 : 52,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: const Color(
-                                              0xFF00C853,
-                                            ).withOpacity(0.12),
-                                            border: Border.all(
-                                              color: const Color(
-                                                0xFF00C853,
-                                              ).withOpacity(0.25),
-                                            ),
-                                          ),
-                                          child: const Icon(
-                                            Icons.event_available_rounded,
-                                            color: Color(0xFF69F0AE),
-                                            size: 24,
-                                          ),
-                                        ),
+                                    child: LayoutBuilder(
+  builder: (context, constraints) {
+    final compact = constraints.maxWidth < 360;
+    final iconSize = compact ? 44.0 : (isDesktop ? 58.0 : 52.0);
+    final arrowSize = compact ? 28.0 : 32.0;
 
-                                        const SizedBox(width: 14),
+    return Row(
+      children: [
+        Container(
+          width: iconSize,
+          height: iconSize,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: const Color(0xFF00C853).withOpacity(0.12),
+            border: Border.all(
+              color: const Color(0xFF00C853).withOpacity(0.25),
+            ),
+          ),
+          child: Icon(
+            Icons.event_available_rounded,
+            color: const Color(0xFF69F0AE),
+            size: compact ? 21 : 24,
+          ),
+        ),
 
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                "PROSSIMO APPUNTAMENTO",
-                                                style: TextStyle(
-                                                  color: const Color(
-                                                    0xFF69F0AE,
-                                                  ),
-                                                  fontSize: isDesktop
-                                                      ? 12
-                                                      : 10.5,
-                                                  fontWeight: FontWeight.w800,
-                                                  letterSpacing: 1.4,
-                                                ),
-                                              ),
+        SizedBox(width: compact ? 11 : 14),
 
-                                              const SizedBox(height: 7),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "PROSSIMO APPUNTAMENTO",
+                  maxLines: 1,
+                  style: TextStyle(
+                    color: const Color(0xFF69F0AE),
+                    fontSize: isDesktop ? 12 : 10.5,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: compact ? 1.0 : 1.4,
+                  ),
+                ),
+              ),
 
-                                              Text(
-                                                servizio,
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: isDesktop
-                                                      ? 18
-                                                      : isTablet
-                                                      ? 16
-                                                      : 14.5,
-                                                  fontWeight: FontWeight.w800,
-                                                  height: 1.15,
-                                                ),
-                                              ),
+              const SizedBox(height: 7),
 
-                                              const SizedBox(height: 5),
+              Text(
+                servizio,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: isDesktop
+                      ? 18
+                      : isTablet
+                          ? 16
+                          : compact
+                              ? 14
+                              : 14.5,
+                  fontWeight: FontWeight.w800,
+                  height: 1.15,
+                ),
+              ),
 
-                                              Text(
-                                                "$dataLabel • $oraLabel${operatorId.isNotEmpty ? " • $operatorId" : ""}",
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
-                                                  color: Colors.white
-                                                      .withOpacity(0.58),
-                                                  fontSize: isDesktop
-                                                      ? 13
-                                                      : isTablet
-                                                      ? 12.5
-                                                      : 11.5,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
+              const SizedBox(height: 5),
 
-                                        const SizedBox(width: 10),
+              Text(
+                "$dataLabel • $oraLabel",
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.58),
+                  fontSize: isDesktop
+                      ? 13
+                      : isTablet
+                          ? 12.5
+                          : compact
+                              ? 11
+                              : 11.5,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
 
-                                        Container(
-                                          width: 32,
-                                          height: 32,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: Colors.white.withOpacity(
-                                              0.05,
-                                            ),
-                                            border: Border.all(
-                                              color: Colors.white.withOpacity(
-                                                0.06,
-                                              ),
-                                            ),
-                                          ),
-                                          child: Icon(
-                                            Icons.arrow_forward_ios_rounded,
-                                            size: 12,
-                                            color: Colors.white.withOpacity(
-                                              0.70,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+        SizedBox(width: compact ? 7 : 10),
+
+        Container(
+          width: arrowSize,
+          height: arrowSize,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white.withOpacity(0.05),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.06),
+            ),
+          ),
+          child: Icon(
+            Icons.arrow_forward_ios_rounded,
+            size: compact ? 10 : 12,
+            color: Colors.white.withOpacity(0.70),
+          ),
+        ),
+      ],
+    );
+  },
+),
                                   ),
                                 ),
                               );
@@ -896,13 +1261,8 @@ class _HomePageState extends State<HomePage> {
 
                           builder: (context, snapshot) {
                             if (!snapshot.hasData) {
-                              return const Center(
-                                child: Padding(
-                                  padding: EdgeInsets.all(40),
-                                  child: CircularProgressIndicator(),
-                                ),
-                              );
-                            }
+  return _premiumServicesSkeleton();
+}
 
                             final servizi = snapshot.data!;
 
@@ -1246,75 +1606,97 @@ class _HomePageState extends State<HomePage> {
                         ),
 
                         Padding(
-                          padding: EdgeInsets.fromLTRB(
-                            horizontalPadding,
-                            isDesktop ? 36 : 28,
-                            horizontalPadding,
-                            0,
-                          ),
-                          child: Column(
-                            children: [
-                              Container(
-                                width: isDesktop ? 56 : 44,
-                                height: 1,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      Colors.transparent,
-                                      Colors.white.withOpacity(0.24),
-                                      Colors.transparent,
-                                    ],
-                                  ),
-                                ),
-                              ),
+  padding: EdgeInsets.fromLTRB(
+    horizontalPadding,
+    isDesktop ? 38 : 30,
+    horizontalPadding,
+    0,
+  ),
+  child: Column(
+    children: [
+      Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            width: isDesktop ? 180 : 132,
+            height: 1,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.transparent,
+                  Colors.white.withOpacity(0.22),
+                  Colors.transparent,
+                ],
+              ),
+            ),
+          ),
+          Container(
+            width: 5,
+            height: 5,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(0.72),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.white.withOpacity(0.24),
+                  blurRadius: 14,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
 
-                              const SizedBox(height: 14),
+      const SizedBox(height: 16),
 
-                              Text(
-                                "© ${DateTime.now().year} VITÆ COLLECTIVE STUDIO",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: Colors.white.withOpacity(0.42),
-                                  fontSize: isDesktop ? 11.5 : 10.5,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 1.5,
-                                ),
-                              ),
+      Text(
+        "© ${DateTime.now().year} VITÆ Collective Studio",
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: Colors.white.withOpacity(0.52),
+          fontSize: isDesktop ? 12 : 11,
+          fontWeight: FontWeight.w900,
+          letterSpacing: 0.8,
+        ),
+      ),
 
-                              Text(
-                                "Eleganza, cura e precisione. Tutti i diritti riservati.",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: Colors.white.withOpacity(0.28),
-                                  fontSize: isDesktop ? 11 : 10,
-                                  fontWeight: FontWeight.w500,
-                                  letterSpacing: 0.25,
-                                  height: 1.4,
-                                ),
-                              ),
+      const SizedBox(height: 5),
 
-                              const SizedBox(height: 12),
+      Text(
+        "Esperienza, precisione e cura. Tutti i diritti sono riservati.",
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: Colors.white.withOpacity(0.30),
+          fontSize: isDesktop ? 11.5 : 10.4,
+          fontWeight: FontWeight.w500,
+          letterSpacing: 0.2,
+          height: 1.35,
+        ),
+      ),
 
-                              Wrap(
-                                alignment: WrapAlignment.center,
-                                spacing: 12,
-                                runSpacing: 6,
-                                children: [
-                                  _legalTextAction(
-                                    icon: Icons.privacy_tip_outlined,
-                                    label: "Privacy Policy",
-                                    onTap: apriPrivacyPolicy,
-                                  ),
-                                  _legalTextAction(
-                                    icon: Icons.person_remove_alt_1_outlined,
-                                    label: "Eliminazione account",
-                                    onTap: apriEliminazioneAccount,
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
+      const SizedBox(height: 14),
+
+      Wrap(
+        alignment: WrapAlignment.center,
+        spacing: 10,
+        runSpacing: 8,
+        children: [
+          _legalTextAction(
+            icon: Icons.privacy_tip_outlined,
+            label: "Privacy Policy",
+            onTap: apriPrivacyPolicy,
+          ),
+          _legalTextAction(
+            icon: Icons.person_remove_alt_1_outlined,
+            label: "Eliminazione account",
+            onTap: apriEliminazioneAccount,
+          ),
+        ],
+      ),
+    ],
+  ),
+),
 
                         const SizedBox(height: 40),
                       ],

@@ -445,18 +445,20 @@ class _ClientiPageState extends State<ClientiPage> {
                                   data['telefono']?.toString() ?? '';
 
                               return AnimatedContainer(
-                                duration: const Duration(milliseconds: 180),
+  duration: const Duration(milliseconds: 180),
 
-                                height: isDesktop
-                                    ? 102
-                                    : isTablet
-                                    ? 92
-                                    : 82,
+  constraints: BoxConstraints(
+    minHeight: isDesktop
+        ? 102
+        : isTablet
+        ? 92
+        : 86,
+  ),
 
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 14,
-                                  vertical: 10,
-                                ),
+  padding: EdgeInsets.symmetric(
+    horizontal: isMobile ? 12 : 16,
+    vertical: isMobile ? 12 : 14,
+  ),
 
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(
@@ -574,11 +576,12 @@ class _ClientiPageState extends State<ClientiPage> {
                                           const SizedBox(height: 4),
 
                                           Text(
-                                            telefono.isNotEmpty
-                                                ? telefono
-                                                : "Numero non disponibile",
-
-                                            style: TextStyle(
+  telefono.isNotEmpty
+      ? telefono
+      : "Numero non disponibile",
+  maxLines: 1,
+  overflow: TextOverflow.ellipsis,
+  style: TextStyle(
                                               color: Colors.white.withOpacity(
                                                 0.38,
                                               ),
@@ -641,7 +644,8 @@ class _ClientiPageState extends State<ClientiPage> {
                                             ),
                                           ),
 
-                                        SizedBox(width: isMobile ? 10 : 12),
+                                        if (telefono.isNotEmpty)
+  SizedBox(width: isMobile ? 8 : 12),
 
                                         // 🗑 DELETE
                                         GestureDetector(

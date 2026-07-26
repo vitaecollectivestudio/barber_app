@@ -65,6 +65,30 @@ class _MiePrenotazioniPageState extends State<MiePrenotazioniPage> {
     );
   }
 
+Future<void> _cancelLocalReminderIfValid(dynamic rawId) async {
+  final int? id = rawId is int
+      ? rawId
+      : rawId is num
+          ? rawId.toInt()
+          : null;
+
+  if (id == null) return;
+
+  const minAndroidId = -2147483648;
+  const maxAndroidId = 2147483647;
+
+  if (id < minAndroidId || id > maxAndroidId) {
+    debugPrint("Skip cancel local notification: invalid id $id");
+    return;
+  }
+
+  try {
+    await NotificationService.cancelNotification(id);
+  } catch (e) {
+    debugPrint("Errore cancellazione notifica locale $id: $e");
+  }
+}
+
   String _capitalizeWord(String value) {
     if (value.isEmpty) return value;
 
@@ -106,87 +130,101 @@ class _MiePrenotazioniPageState extends State<MiePrenotazioniPage> {
   }
 
   Widget _bookingDetailChip({
-    required IconData icon,
-    required String label,
-    required String value,
-    bool accent = false,
-  }) {
-    final isMobile = Responsive.isMobile(context);
-    final isTablet = Responsive.isTablet(context);
-    final isDesktop = Responsive.isDesktop(context);
+  required IconData icon,
+  required String label,
+  required String value,
+  bool accent = false,
+  double? width,
+  bool multiline = false,
+}) {
+  final isMobile = Responsive.isMobile(context);
+  final isTablet = Responsive.isTablet(context);
+  final isDesktop = Responsive.isDesktop(context);
 
-    final maxTextWidth = isDesktop
-        ? 260.0
-        : isTablet
-        ? 230.0
-        : MediaQuery.of(context).size.width * 0.52;
+  final maxTextWidth = isDesktop
+      ? 260.0
+      : isTablet
+          ? 230.0
+          : MediaQuery.of(context).size.width * 0.42;
 
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: isDesktop ? 13 : 12,
-        vertical: isDesktop ? 8 : 7,
+  final valueStyle = TextStyle(
+    color: accent ? Colors.white.withOpacity(0.92) : Colors.white70,
+    fontSize: isDesktop ? 12.5 : 12,
+    fontWeight: FontWeight.w700,
+    letterSpacing: 0.15,
+  );
+
+  return Container(
+    width: width,
+    padding: EdgeInsets.symmetric(
+      horizontal: isDesktop ? 13 : 12,
+      vertical: isDesktop ? 8 : 7,
+    ),
+    decoration: BoxDecoration(
+      color: Colors.white.withOpacity(accent ? 0.055 : 0.04),
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(
+        color: accent
+            ? const Color(0xFF00C853).withOpacity(0.16)
+            : Colors.white.withOpacity(0.05),
       ),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(accent ? 0.055 : 0.04),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: accent
-              ? const Color(0xFF00C853).withOpacity(0.16)
-              : Colors.white.withOpacity(0.05),
-        ),
-        boxShadow: accent
-            ? [
-                BoxShadow(
-                  color: const Color(0xFF00C853).withOpacity(0.045),
-                  blurRadius: 14,
-                  offset: const Offset(0, 6),
-                ),
-              ]
-            : [],
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            color: accent
-                ? const Color(0xFF69F0AE).withOpacity(0.9)
-                : Colors.white60,
-            size: isDesktop ? 15 : 14,
-          ),
-
-          const SizedBox(width: 7),
-
-          Text(
-            "${label.toUpperCase()}:",
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.42),
-              fontSize: isMobile ? 9.5 : 10,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 1.0,
-            ),
-          ),
-
-          const SizedBox(width: 5),
-
-          ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: maxTextWidth),
-            child: Text(
-              value,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: accent ? Colors.white.withOpacity(0.92) : Colors.white70,
-                fontSize: isDesktop ? 12.5 : 12,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.15,
+      boxShadow: accent
+          ? [
+              BoxShadow(
+                color: const Color(0xFF00C853).withOpacity(0.045),
+                blurRadius: 14,
+                offset: const Offset(0, 6),
               ),
-            ),
+            ]
+          : [],
+    ),
+    child: Row(
+  mainAxisSize: width == null ? MainAxisSize.min : MainAxisSize.max,
+  crossAxisAlignment:
+      multiline ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+  children: [
+        Icon(
+          icon,
+          color: accent
+              ? const Color(0xFF69F0AE).withOpacity(0.9)
+              : Colors.white60,
+          size: isDesktop ? 15 : 14,
+        ),
+        const SizedBox(width: 7),
+        Text(
+          "${label.toUpperCase()}:",
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.42),
+            fontSize: isMobile ? 9.5 : 10,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 1.0,
           ),
-        ],
-      ),
-    );
-  }
+        ),
+        const SizedBox(width: 5),
+        width == null
+            ? ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: maxTextWidth),
+                child: Text(
+                  value,
+                  maxLines: multiline ? 2 : 1,
+overflow: multiline ? TextOverflow.visible : TextOverflow.ellipsis,
+softWrap: multiline,
+                  style: valueStyle,
+                ),
+              )
+            : Expanded(
+                child: Text(
+                  value,
+                  maxLines: multiline ? 2 : 1,
+overflow: multiline ? TextOverflow.visible : TextOverflow.ellipsis,
+softWrap: multiline,
+                  style: valueStyle,
+                ),
+              ),
+      ],
+    ),
+  );
+}
 
   Widget _responsiveDialogShell({
     required BuildContext dialogContext,
@@ -650,24 +688,34 @@ class _MiePrenotazioniPageState extends State<MiePrenotazioniPage> {
 
                                     Padding(
                                       padding: const EdgeInsets.only(top: 6),
-                                      child: Wrap(
-                                        spacing: 8,
-                                        runSpacing: 8,
-                                        children: [
-                                          _bookingDetailChip(
-                                            icon: Icons.calendar_month_rounded,
-                                            label: "Quando",
-                                            value: appointmentLabel,
-                                          ),
+                                      child: LayoutBuilder(
+  builder: (context, constraints) {
+    final chipWidth = Responsive.isMobile(context)
+        ? constraints.maxWidth
+        : null;
 
-                                          _bookingDetailChip(
-                                            icon: Icons.person_rounded,
-                                            label: "Operatore",
-                                            value: operatorName,
-                                            accent: true,
-                                          ),
-                                        ],
-                                      ),
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        _bookingDetailChip(
+  icon: Icons.calendar_month_rounded,
+  label: "Quando",
+  value: appointmentLabel,
+  width: chipWidth,
+  multiline: Responsive.isMobile(context),
+),
+        _bookingDetailChip(
+          icon: Icons.person_rounded,
+          label: "Operatore",
+          value: operatorName,
+          accent: true,
+          width: chipWidth,
+        ),
+      ],
+    );
+  },
+),
                                     ),
                                   ],
                                 ),
@@ -1167,33 +1215,16 @@ class _MiePrenotazioniPageState extends State<MiePrenotazioniPage> {
                                                                             }
 
                                                                             try {
-                                                                              final notification2hId = data['notification2hId'];
-
-                                                                              final notification24hId = data['notification24hId'];
-
-                                                                              if (notification2hId
-                                                                                  is int) {
-                                                                                await NotificationService.cancelNotification(
-                                                                                  notification2hId,
-                                                                                );
-                                                                              }
-
-                                                                              if (notification24hId
-                                                                                  is int) {
-                                                                                await NotificationService.cancelNotification(
-                                                                                  notification24hId,
-                                                                                );
-                                                                              }
-
                                                                               await FirebaseFunctions.instance
-                                                                                  .httpsCallable(
-                                                                                    'cancelBooking',
-                                                                                  )
-                                                                                  .call(
-                                                                                    {
-                                                                                      "bookingId": bookingId,
-                                                                                    },
-                                                                                  );
+    .httpsCallable('cancelBooking')
+    .call(
+      {
+        "bookingId": bookingId,
+      },
+    );
+
+await _cancelLocalReminderIfValid(data['notification2hId']);
+await _cancelLocalReminderIfValid(data['notification24hId']);
 
                                                                               if (dialogContext.mounted) {
                                                                                 Navigator.of(

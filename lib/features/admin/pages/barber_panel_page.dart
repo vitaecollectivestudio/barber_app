@@ -5,9 +5,8 @@ import 'package:flutter/services.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import 'package:google_sign_in/google_sign_in.dart';
-
+import 'package:barber_app/features/admin/widgets/waitlist/waitlist_admin_section.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'package:table_calendar/table_calendar.dart';
@@ -635,6 +634,99 @@ final List<Map<String, String>> operatori = [
       loadingSchedule = false;
     });
   }
+
+bool _isCalendarDayClosed(
+  DateTime day,
+  List<QueryDocumentSnapshot> chiusiDocs,
+) {
+  if (filtro == "Tutti") return false;
+
+  final dayKey = DateFormat('yyyy-MM-dd').format(day);
+
+  return chiusiDocs.any((doc) {
+    final data = doc.data() as Map<String, dynamic>;
+
+    final rawDate = data['data'];
+    final dateKey = data['dateKey']?.toString();
+
+    final sameDayFromTimestamp = rawDate is Timestamp &&
+        rawDate.toDate().year == day.year &&
+        rawDate.toDate().month == day.month &&
+        rawDate.toDate().day == day.day;
+
+    final sameDayFromKey = dateKey == dayKey;
+
+    final operatore = (data['operatore'] ?? data['operatorId'] ?? "")
+        .toString()
+        .toLowerCase();
+
+    return (sameDayFromTimestamp || sameDayFromKey) &&
+        operatore == filtro.toLowerCase();
+  });
+}
+
+Color _calendarStatusColor({
+  required int count,
+  required int totaleSlot,
+  required bool isClosed,
+}) {
+  if (isClosed) {
+    return const Color(0xFFD4AF37);
+  }
+
+  if (filtro == "Tutti") {
+    return count == 0
+        ? const Color(0xFF00C853)
+        : const Color(0xFFD8D8D8);
+  }
+
+  if (count >= totaleSlot) {
+    return Colors.redAccent;
+  }
+
+  if (count <= (totaleSlot * 0.35)) {
+    return const Color(0xFF00C853);
+  }
+
+  return const Color(0xFFD8D8D8);
+}
+
+Widget _calendarStatusStrip({
+  required int count,
+  required int totaleSlot,
+  required bool isClosed,
+  required bool isMobile,
+}) {
+  final color = _calendarStatusColor(
+    count: count,
+    totaleSlot: totaleSlot,
+    isClosed: isClosed,
+  );
+
+  return Positioned(
+  top: isMobile ? 6 : 7,
+  right: isMobile ? 6 : 7,
+  child: Container(
+    width: isMobile ? 7 : 8,
+    height: isMobile ? 7 : 8,
+    decoration: BoxDecoration(
+      color: color,
+      shape: BoxShape.circle,
+      border: Border.all(
+        color: const Color(0xFF101010),
+        width: 1.2,
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: color.withOpacity(0.45),
+          blurRadius: 8,
+          spreadRadius: 1,
+        ),
+      ],
+    ),
+  ),
+);
+}
 
   @override
   Widget build(BuildContext context) {
@@ -1283,31 +1375,23 @@ final List<Map<String, String>> operatori = [
                                     filtro.toLowerCase();
                               }).toList();
 
-                              return SizedBox(
-                                width: double.infinity,
+                              return Center(
+  child: ConstrainedBox(
+    constraints: BoxConstraints(
+      maxWidth: isDesktop
+          ? 1180
+          : isTablet
+              ? 940
+              : double.infinity,
+    ),
+    child: SizedBox(
+      width: double.infinity,
+      child: Column(
+      children: [
+        const SizedBox(height: 20),
 
-                                child: ConstrainedBox(
-                                  constraints: const BoxConstraints(),
-
-                                  child: Column(
-                                    children: [
-                                      const SizedBox(height: 20),
-
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            const SizedBox(height: 20),
-                                          ],
-                                        ),
-                                      ),
-
-                                      // 🔥 CALENDARIO PREMIUM
-                                      PremiumCalendar(
+        // 🔥 CALENDARIO PREMIUM
+        PremiumCalendar(
                                         child: TableCalendar(
                                           locale: 'it_IT',
 
@@ -1590,6 +1674,7 @@ final List<Map<String, String>> operatori = [
                                               final count = filtered.length;
                                               final totaleSlot = 17;
                                               final isSelected = true;
+                                              final dayClosed = _isCalendarDayClosed(day, chiusiDocs);
 
                                               Color bgColor =
                                                   const Color.fromARGB(
@@ -1639,21 +1724,30 @@ final List<Map<String, String>> operatori = [
                                                         ),
                                                       ],
                                                     ),
-                                                    child: Center(
-                                                      child: Text(
-                                                        "${day.day}",
-                                                        style: TextStyle(
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontSize: isDesktop
-                                                              ? 18
-                                                              : isTablet
-                                                              ? 16
-                                                              : 14,
-                                                        ),
-                                                      ),
-                                                    ),
+                                                    child: Stack(
+  children: [
+    Center(
+      child: Text(
+        "${day.day}",
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: isDesktop
+              ? 18
+              : isTablet
+              ? 16
+              : 14,
+        ),
+      ),
+    ),
+    _calendarStatusStrip(
+      count: count,
+      totaleSlot: totaleSlot,
+      isClosed: dayClosed,
+      isMobile: isMobile,
+    ),
+  ],
+),
                                                   ),
                                                 ),
                                               );
@@ -1693,13 +1787,22 @@ final List<Map<String, String>> operatori = [
                                                 selectedDay,
                                               );
                                               final domenica = day.weekday == 7;
+                                              final dayClosed = _isCalendarDayClosed(day, chiusiDocs);
 
                                               Color bgColor;
                                               List<BoxShadow> glow = [];
 
-                                              if (domenica) {
-                                                bgColor = Colors.black;
-                                              } else if (count == 0) {
+                                             if (domenica) {
+  bgColor = Colors.black;
+} else if (dayClosed) {
+  bgColor = const Color(0xFF171717);
+  glow = [
+    BoxShadow(
+      color: const Color(0xFFD4AF37).withOpacity(0.16),
+      blurRadius: 16,
+    ),
+  ];
+} else if (count == 0) {
                                                 bgColor = const Color.fromARGB(
                                                   255,
                                                   137,
@@ -1881,67 +1984,12 @@ final List<Map<String, String>> operatori = [
                                                           ),
                                                         ),
 
-                                                        if (count > 0)
-                                                          Positioned(
-                                                            bottom: 4,
-                                                            right: 4,
-                                                            child: Container(
-                                                              padding:
-                                                                  const EdgeInsets.all(
-                                                                    4,
-                                                                  ),
-                                                              decoration:
-                                                                  const BoxDecoration(
-                                                                    color:
-                                                                        Color.fromARGB(
-                                                                          255,
-                                                                          7,
-                                                                          7,
-                                                                          7,
-                                                                        ),
-                                                                    shape: BoxShape
-                                                                        .circle,
-                                                                  ),
-                                                              child: Text(
-                                                                "$count",
-                                                                style: const TextStyle(
-                                                                  color:
-                                                                      Color.fromARGB(
-                                                                        255,
-                                                                        255,
-                                                                        255,
-                                                                        255,
-                                                                      ),
-                                                                  fontSize: 10,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ),
-
-                                                        if (count >= totaleSlot)
-                                                          Container(
-                                                            decoration:
-                                                                BoxDecoration(
-                                                                  color: Colors
-                                                                      .black
-                                                                      .withOpacity(
-                                                                        0.6,
-                                                                      ),
-                                                                  shape: BoxShape
-                                                                      .circle,
-                                                                ),
-                                                            child: const Center(
-                                                              child: Icon(
-                                                                Icons.lock,
-                                                                color: Colors
-                                                                    .white38,
-                                                                size: 18,
-                                                              ),
-                                                            ),
-                                                          ),
+                                                      _calendarStatusStrip(
+  count: count,
+  totaleSlot: totaleSlot,
+  isClosed: dayClosed,
+  isMobile: isMobile,
+),
                                                       ],
                                                     ),
                                                   ),
@@ -1993,9 +2041,9 @@ final List<Map<String, String>> operatori = [
                                         ),
                                       ),
 
-                                      SizedBox(height: isMobile ? 20 : 26),
+                                      SizedBox(height: isMobile ? 18 : isTablet ? 22 : 24),
 
-                                      AppointmentsSection(
+AppointmentsSection(
                                         child: Column(
                                           children: [
                                             AppointmentsHeader(
@@ -2085,74 +2133,29 @@ final List<Map<String, String>> operatori = [
                                                               );
                                                             },
 
-                                                            infoChips: isMobile
-                                                                ? SingleChildScrollView(
-                                                                    scrollDirection:
-                                                                        Axis.horizontal,
+                                                            infoChips: Wrap(
+  spacing: isMobile ? 8 : 10,
+  runSpacing: 8,
+  children: [
+    PremiumInfoChip(
+      icon: Icons.access_time_rounded,
+      text: DateFormat('HH:mm').format(
+        (data['startAt'] as Timestamp).toDate(),
+      ),
+    ),
 
-                                                                    child: Row(
-                                                                      children: [
-                                                                        PremiumInfoChip(
-                                                                          icon:
-                                                                              Icons.access_time_rounded,
-                                                                          text:
-                                                                              DateFormat(
-                                                                                'HH:mm',
-                                                                              ).format(
-                                                                                (data['startAt']
-                                                                                        as Timestamp)
-                                                                                    .toDate(),
-                                                                              ),
-                                                                        ),
+    if (!isMobile)
+      PremiumInfoChip(
+        icon: Icons.person_outline,
+        text: "${data['operatorId']}",
+      ),
 
-                                                                        const SizedBox(
-                                                                          width:
-                                                                              8,
-                                                                        ),
-
-                                                                        PremiumInfoChip(
-                                                                          icon:
-                                                                              Icons.timelapse,
-                                                                          text:
-                                                                              "${data['durata'] ?? 30} min",
-                                                                        ),
-                                                                      ],
-                                                                    ),
-                                                                  )
-                                                                : Wrap(
-                                                                    spacing: 10,
-                                                                    runSpacing:
-                                                                        10,
-
-                                                                    children: [
-                                                                      PremiumInfoChip(
-                                                                        icon: Icons
-                                                                            .access_time_rounded,
-                                                                        text:
-                                                                            DateFormat(
-                                                                              'HH:mm',
-                                                                            ).format(
-                                                                              (data['startAt']
-                                                                                      as Timestamp)
-                                                                                  .toDate(),
-                                                                            ),
-                                                                      ),
-
-                                                                      PremiumInfoChip(
-                                                                        icon: Icons
-                                                                            .person_outline,
-                                                                        text:
-                                                                            "${data['operatorId']}",
-                                                                      ),
-
-                                                                      PremiumInfoChip(
-                                                                        icon: Icons
-                                                                            .timelapse,
-                                                                        text:
-                                                                            "${data['durata'] ?? 30} min",
-                                                                      ),
-                                                                    ],
-                                                                  ),
+    PremiumInfoChip(
+      icon: Icons.timelapse,
+      text: "${data['durata'] ?? 30} min",
+    ),
+  ],
+),
                                                           );
                                                         }).toList(),
                                                       ),
@@ -2162,9 +2165,16 @@ final List<Map<String, String>> operatori = [
                                         ),
                                       ),
 
-                                      SizedBox(height: isMobile ? 20 : 26),
+SizedBox(height: isMobile ? 16 : isTablet ? 20 : 22),
 
-                                      SizedBox(height: isMobile ? 20 : 26),
+WaitlistAdminSection(
+  selectedDay: selectedDay,
+  selectedOperator: filtro,
+  isMobile: isMobile,
+),
+
+
+                                      SizedBox(height: isMobile ? 16 : isTablet ? 20 : 22),
 
                                       Padding(
                                         padding: EdgeInsets.fromLTRB(
@@ -2873,6 +2883,7 @@ final List<Map<String, String>> operatori = [
                                     ],
                                   ),
                                 ),
+  ),
                               );
                             },
                           );

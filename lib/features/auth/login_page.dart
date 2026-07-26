@@ -440,10 +440,35 @@ class _LoginPageState extends State<LoginPage> {
                   );
                 },
                 child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SingleChildScrollView(
-                      keyboardDismissBehavior:
-                          ScrollViewKeyboardDismissBehavior.onDrag,
+  builder: (context, constraints) {
+    final media = MediaQuery.of(context);
+    final width = media.size.width;
+    final isDesktopWidth = width >= 900;
+    final isTabletWidth = width >= 600 && width < 900;
+    final isShortScreen = constraints.maxHeight < 720;
+
+    final horizontalPadding = isDesktopWidth
+        ? 40.0
+        : isTabletWidth
+            ? 54.0
+            : 22.0;
+
+    final topPadding = isDesktopWidth
+    ? 44.0
+    : isShortScreen
+        ? 34.0
+        : 42.0;
+
+    final bottomPadding =
+        media.padding.bottom + media.viewInsets.bottom + (isShortScreen ? 58.0 : 72.0);
+
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(
+        parent: AlwaysScrollableScrollPhysics(),
+      ),
+      keyboardDismissBehavior:
+          ScrollViewKeyboardDismissBehavior.onDrag,
+                      
                       child: ConstrainedBox(
                         constraints: BoxConstraints(
                           minHeight: constraints.maxHeight,
@@ -458,18 +483,12 @@ class _LoginPageState extends State<LoginPage> {
                                   : double.infinity,
                             ),
                             child: Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal:
-                                    MediaQuery.of(context).size.width >= 900
-                                    ? 40
-                                    : MediaQuery.of(context).size.width >= 600
-                                    ? 54
-                                    : 22,
-                                vertical:
-                                    MediaQuery.of(context).size.width >= 900
-                                    ? 36
-                                    : 22,
-                              ),
+  padding: EdgeInsets.fromLTRB(
+    horizontalPadding,
+    topPadding,
+    horizontalPadding,
+    bottomPadding,
+  ),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [

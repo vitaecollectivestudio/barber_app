@@ -385,10 +385,11 @@ class _WalkInPageState extends State<WalkInPage> {
         final data = doc.data();
 
         return {
-          "nome": data["name"],
-          "durata": data["durationMinutes"],
-          "prezzo": "€${(data["priceCents"] / 100).toStringAsFixed(0)}",
-        };
+  "id": doc.id,
+  "nome": data["name"],
+  "durata": data["durationMinutes"],
+  "prezzo": "€${(data["priceCents"] / 100).toStringAsFixed(0)}",
+};
       }).toList();
     });
   }
@@ -504,16 +505,17 @@ class _WalkInPageState extends State<WalkInPage> {
           "${data.day.toString().padLeft(2, '0')}";
 
       await callable.call({
-        "operatorId": operatore!.toLowerCase(),
-        "dateKey": dateKey,
-        "startAt": startAt.toUtc().toIso8601String(),
-        "endAt": endAt.toUtc().toIso8601String(),
-        "durata": servizioSelezionato!["durata"],
-        "servizio": servizioSelezionato!["nome"],
-        "nome": nome.text.trim(),
-        "telefono": telefono.text.trim(),
-        "userId": userIdSelezionato,
-      });
+  "operatorId": operatore!.toLowerCase(),
+  "dateKey": dateKey,
+  "startAt": startAt.toUtc().toIso8601String(),
+  "endAt": endAt.toUtc().toIso8601String(),
+  "serviceId": servizioSelezionato!["id"],
+  "durata": servizioSelezionato!["durata"],
+  "servizio": servizioSelezionato!["nome"],
+  "nome": nome.text.trim(),
+  "telefono": telefono.text.trim(),
+  "userId": userIdSelezionato,
+});
 
       if (!mounted) return;
 

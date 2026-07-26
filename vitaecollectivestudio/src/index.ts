@@ -191,24 +191,30 @@ async function notifyWaitlist(
 
     try {
       await admin.messaging().send({
-  token,
-  notification: {
-    title: "Buone Notizie!💈",
-    body: "Si è liberato un orario per il giorno richiesto.",
-  },
-  data: {
-    type: "waitlist_slot_available",
-    operatorId,
-    dateKey,
-  },
-  apns: {
-    payload: {
-      aps: {
-        sound: "default",
-      },
-    },
-  },
-});
+        token,
+        notification: {
+          title: "Buone Notizie!💈",
+          body: "Si è liberato un orario per il giorno richiesto.",
+        },
+        data: {
+          type: "waitlist_slot_available",
+          operatorId,
+          dateKey,
+        },
+        android: {
+          notification: {
+            sound: "default",
+            channelId: "barber_channel",
+          },
+        },
+        apns: {
+          payload: {
+            aps: {
+              sound: "default",
+            },
+          },
+        },
+      });
 
       batch.update(doc.ref, {
         notified: true,
@@ -787,11 +793,45 @@ export const createWalkInBooking = onCall(
     const operatorId =
   String(data.operatorId ?? "").trim().toLowerCase();
 
+    const serviceId =
+  String(data.serviceId ?? "").trim();
+
     const startAt =
   new Date(data.startAt);
 
+    if (!serviceId) {
+      throw new HttpsError(
+        "invalid-argument",
+        "Servizio non valido"
+      );
+    }
+
+    const serviceDoc = await db
+      .collection("services")
+      .doc(serviceId)
+      .get();
+
+    if (!serviceDoc.exists) {
+      throw new HttpsError(
+        "not-found",
+        "Servizio inesistente"
+      );
+    }
+
+    const serviceData = serviceDoc.data();
+
+    if (serviceData?.active !== true) {
+      throw new HttpsError(
+        "failed-precondition",
+        "Servizio non disponibile"
+      );
+    }
+
+    const servizio =
+  String(serviceData?.name ?? "").trim();
+
     const durata =
-  Number(data.durata);
+  Number(serviceData?.durationMinutes);
 
     const endAt =
   new Date(startAt.getTime() + durata * 60000);
@@ -856,13 +896,10 @@ durata % 5 !== 0
       );
     }
 
-    if (
-      !data.servizio ||
-  typeof data.servizio !== "string"
-    ) {
+    if (!servizio) {
       throw new HttpsError(
         "invalid-argument",
-        "Servizio non valido"
+        "Nome servizio non valido"
       );
     }
 
@@ -1009,8 +1046,9 @@ durata % 5 !== 0
         nome: data.nome ?? "",
         telefono: data.telefono ?? "",
 
-        servizio: data.servizio,
-        durata: durata,
+        serviceId,
+        servizio,
+        durata,
 
         walkin: true,
       });

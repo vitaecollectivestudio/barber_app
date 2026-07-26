@@ -83,13 +83,13 @@ class _AppointmentCardState
                   const Duration(milliseconds: 250),
 
               margin: EdgeInsets.only(
-  left: widget.isMobile ? 12 : 16,
-  right: widget.isMobile ? 12 : 16,
-  bottom: widget.isMobile ? 10 : 26,
+  left: widget.isMobile ? 10 : 16,
+  right: widget.isMobile ? 10 : 16,
+  bottom: widget.isMobile ? 9 : 22,
 ),
 
-              padding: EdgeInsets.all(
-  widget.isMobile ? 10 : 18,
+padding: EdgeInsets.all(
+  widget.isMobile ? 11 : 18,
 ),
 
               decoration: BoxDecoration(
@@ -132,283 +132,166 @@ class _AppointmentCardState
                 ],
               ),
 
-              child: Row(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
+              child: LayoutBuilder(
+  builder: (context, constraints) {
+    final compact = widget.isMobile || constraints.maxWidth < 430;
+final leadingSize = compact ? 38.0 : 54.0;
+final deleteSize = compact ? 40.0 : 50.0;
+final gap = compact ? 9.0 : 18.0;
+final nameFontSize = compact ? 14.0 : 19.0;
+final serviceFontSize = compact ? 12.5 : 15.0;
+    final telefono = (widget.data['telefono'] ?? "").toString();
 
-                children: [
-
-                  Container(
-                    width:
-                        widget.isMobile ? 48 : 56,
-
-                    height:
-                        widget.isMobile ? 48 : 56,
-
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-
-                      gradient:
-                          const LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-
-                        colors: [
-                          Color(0xFF222222),
-                          Color(0xFF111111),
-                        ],
-                      ),
-
-                      border: Border.all(
-                        color: Colors.white
-                            .withOpacity(0.04),
-                      ),
-                    ),
-
-                    child: Center(
-                      child: Text(
-                        "${widget.index}",
-
-                        style: TextStyle(
-                          color: Colors.white,
-
-                          fontWeight:
-                              FontWeight.w700,
-
-                          fontSize:
-                              widget.isMobile
-                                  ? 15
-                                  : 17,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  SizedBox(
-                    width:
-                        widget.isMobile ? 14 : 20,
-                  ),
-
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment:
-                          CrossAxisAlignment.start,
-
-                      children: [
-
-                        Row(
-                          children: [
-
-                            Expanded(
-                              child: Text(
-                                widget.data['nome']
-                                        ?? "Cliente",
-
-                                maxLines: 1,
-
-                                overflow:
-                                    TextOverflow
-                                        .ellipsis,
-
-                                style: TextStyle(
-                                  color: Colors.white,
-
-                                  fontWeight:
-                                      FontWeight
-                                          .w700,
-
-                                  fontSize:
-                                      widget
-                                              .isMobile
-                                          ? 13
-                                          : 19,
-                                ),
-                              ),
-                            ),
-
-                            if (widget.data['walkin']
-    == true)
-
-  Padding(
-    padding: const EdgeInsets.only(left: 10),
-
-    child: Container(
-                                padding:
-                                    const EdgeInsets
-                                        .symmetric(
-                                  horizontal: 10,
-                                  vertical: 5,
-                                ),
-
-                                decoration:
-                                    BoxDecoration(
-                                  color: Colors.white
-                                      .withOpacity(
-                                          0.15),
-
-                                  borderRadius:
-                                      BorderRadius
-                                          .circular(
-                                              30),
-
-                                  border:
-                                      Border.all(
-                                    color:
-                                        Colors.white,
-                                  ),
-                                ),
-
-                                child: const Text(
-                                  "WALK-IN",
-
-                                  style: TextStyle(
-                                    color:
-                                        Colors.white,
-
-                                    fontSize: 10,
-
-                                    fontWeight:
-                                        FontWeight
-                                            .bold,
-                                  ),
-                                ),
-                              ),
-),
-                          ],
-                        ),
-
-                        const SizedBox(height: 10),
-
-                        Text(
-                          widget.data['servizio'],
-maxLines: 1,
-overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color:
-                                Colors.white
-                                    .withOpacity(
-                                        0.8),
-
-                            fontSize:
-                                widget.isMobile
-                                    ? 13
-                                    : 15,
-
-                            fontWeight:
-                                FontWeight.w500,
-                          ),
-                        ),
-
-                        SizedBox(
-  height:
-      widget.isMobile ? 6 : 14,
-),
-
-                        widget.isMobile
-    ? SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: [
-            widget.infoChips,
-
-            if ((widget.data['telefono'] ?? "")
-                .toString()
-                .isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(left: 8),
-                child: Text(
-                  widget.data['telefono'],
-                  style: const TextStyle(
-                    color: Color(0xFF00C853),
-                    fontWeight: FontWeight.w700,
-                    fontSize: 12,
-                  ),
-                ),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: leadingSize,
+          height: leadingSize,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF222222),
+                Color(0xFF111111),
+              ],
+            ),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.04),
+            ),
+          ),
+          child: Center(
+            child: Text(
+              "${widget.index}",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                fontSize: compact ? 14 : 17,
               ),
-          ],
-        ),
-      )
-    : widget.infoChips,
-                        if (!widget.isMobile &&
-    (widget.data['telefono'] ?? "")
-        .toString()
-        .isNotEmpty) ...[
-  const SizedBox(height: 14),
-  Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-
-      const Icon(
-        Icons.phone,
-        color: Color(0xFF00C853),
-        size: 16,
-      ),
-
-      const SizedBox(width: 8),
-
-      Expanded(
-        child: Text(
-          widget.data['telefono'],
-
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-
-          style: const TextStyle(
-            color: Color(0xFF00C853),
-            fontWeight: FontWeight.w600,
+            ),
           ),
         ),
-      ),
-    ],
-  ),
-],
-                      ],
+
+        SizedBox(width: gap),
+
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      (widget.data['nome'] ?? "Cliente").toString(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: nameFontSize,
+                      ),
                     ),
                   ),
 
-                  const SizedBox(width: 10),
-
-                  GestureDetector(
-                    onTap: widget.onDelete,
-
-                    child: Container(
-                      padding:
-                          EdgeInsets.symmetric(
-                        horizontal:
-                            widget.isMobile
-                                ? 8
-                                : 16,
-
-                        vertical:
-                            widget.isMobile
-                                ? 8
-                                : 16,
-                      ),
-
-                      decoration: BoxDecoration(
-                        color: Colors.redAccent
-                            .withOpacity(0.12),
-
-                        borderRadius:
-                            BorderRadius.circular(
-                                18),
-
-                        border: Border.all(
-                          color: Colors.redAccent
-                              .withOpacity(0.18),
+                  if (widget.data['walkin'] == true)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: compact ? 8 : 10,
+                          vertical: compact ? 4 : 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(30),
+                          border: Border.all(color: Colors.white),
+                        ),
+                        child: const Text(
+                          "WALK-IN",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-
-                      child: const Icon(
-                        Icons.delete_outline,
-
-                        color: Colors.redAccent,
-                        size: 20,
-                      ),
                     ),
-                  ),
                 ],
               ),
+
+              SizedBox(height: compact ? 8 : 10),
+
+              Text(
+                (widget.data['servizio'] ?? "").toString(),
+                maxLines: compact ? 2 : 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.8),
+                  fontSize: serviceFontSize,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+
+              SizedBox(height: compact ? 7 : 13),
+
+              widget.infoChips,
+
+              if (telefono.isNotEmpty) ...[
+                SizedBox(height: compact ? 8 : 14),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.phone,
+                      color: Color(0xFF00C853),
+                      size: 16,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        telefono,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: const Color(0xFF00C853),
+                          fontWeight: FontWeight.w600,
+                          fontSize: compact ? 12 : 13,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ),
+
+        SizedBox(width: compact ? 8 : 10),
+
+        GestureDetector(
+          onTap: widget.onDelete,
+          child: Container(
+            width: deleteSize,
+            height: deleteSize,
+            decoration: BoxDecoration(
+              color: Colors.redAccent.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(compact ? 16 : 18),
+              border: Border.all(
+                color: Colors.redAccent.withOpacity(0.18),
+              ),
+            ),
+            child: const Icon(
+              Icons.delete_outline,
+              color: Colors.redAccent,
+              size: 20,
+            ),
+          ),
+        ),
+      ],
+    );
+  },
+),
             ),
           ),
         ),

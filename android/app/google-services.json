@@ -75,6 +75,14 @@
           }
         },
         {
+          "client_id": "54159583135-qtpkgjo2ljgs495p17khhvncr5j6gih6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vitaecollectivestudio.app",
+            "certificate_hash": "a44da61b3ce3994b68bbe75868668203d30df547"
+          }
+        },
+        {
           "client_id": "54159583135-d7bchbeg8tg6d7ertr9ssnne4fd970id.apps.googleusercontent.com",
           "client_type": 3
         }

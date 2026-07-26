@@ -985,6 +985,8 @@ if (chiuso) {
     return giorni;
   }
 
+
+
   Widget _bookingSection({
     required IconData icon,
     required String title,
@@ -1378,11 +1380,14 @@ if (chiuso) {
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
                 child: Column(
-                  children: [
-                    const SizedBox(height: 28),
+  children: [
+    const SizedBox(height: 22),
 
-                    _bookingSection(
-                      icon: Icons.calendar_month_rounded,
+
+    const SizedBox(height: 10),
+
+    _bookingSection(
+      icon: Icons.calendar_month_rounded,
                       title: "Data",
                       subtitle: "Scegli il giorno dell'appuntamento.",
                       child: Container(

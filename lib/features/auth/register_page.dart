@@ -207,20 +207,8 @@ await Future.delayed(
             : 32.0;
 
     return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: TweenAnimationBuilder(
-        duration: const Duration(milliseconds: 400),
-        tween: Tween(begin: 0.0, end: 1.0),
-        builder: (context, value, child) {
-          return Opacity(
-            opacity: value,
-            child: Transform.translate(
-              offset: Offset(0, 20 * (1 - value)),
-              child: child,
-            ),
-          );
-        },
-        child: Scaffold(
+  onTap: () => FocusScope.of(context).unfocus(),
+  child: Scaffold(
           resizeToAvoidBottomInset: true,
           backgroundColor: Colors.black,
           body: Stack(
@@ -239,9 +227,19 @@ await Future.delayed(
               ),
 
               SafeArea(
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SingleChildScrollView(
+  child: LayoutBuilder(
+    builder: (context, constraints) {
+      final isShortScreen = constraints.maxHeight < 720;
+
+      final topPadding = width >= 900
+          ? 44.0
+          : isShortScreen
+              ? 34.0
+              : 42.0;
+
+      final bottomPadding = width >= 900 ? 36.0 : 22.0;
+
+      return SingleChildScrollView(
                       keyboardDismissBehavior:
                           ScrollViewKeyboardDismissBehavior.onDrag,
                       child: ConstrainedBox(
@@ -254,10 +252,12 @@ await Future.delayed(
                               maxWidth: maxWidth,
                             ),
                             child: Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: horizontalPadding,
-                                vertical: width >= 900 ? 36 : 22,
-                              ),
+                              padding: EdgeInsets.fromLTRB(
+  horizontalPadding,
+  topPadding,
+  horizontalPadding,
+  bottomPadding,
+),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -426,7 +426,6 @@ SizedBox(
             ],
           ),
         ),
-      ),
     );
   }
 }

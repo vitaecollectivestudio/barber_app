@@ -1,433 +1,1115 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta name="google-site-verification" content="3tEvWns1y8bz7BVHnJklrglTqmbpH2AA1JsgmD9KqAA" />
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <meta
+    name="google-site-verification"
+    content="3tEvWns1y8bz7BVHnJklrglTqmbpH2AA1JsgmD9KqAA"
+  />
+
   <title>VITÆ Collective Studio</title>
-  <meta name="description" content="VITÆ Collective Studio è l'app ufficiale per prenotare servizi barber, gestire appuntamenti e ricevere notifiche.">
+
+  <link rel="icon" type="image/png" href="/logo.png?v=7" />
+  <link rel="apple-touch-icon" href="/logo.png?v=7" />
 
   <style>
     :root {
-      --bg: #050505;
-      --panel: rgba(255,255,255,0.055);
-      --panel-strong: rgba(255,255,255,0.09);
-      --text: #ffffff;
-      --muted: rgba(255,255,255,0.68);
-      --soft: rgba(255,255,255,0.42);
-      --green: #69F0AE;
-      --green-dark: #00C853;
-      --border: rgba(255,255,255,0.11);
-      --shadow: rgba(0,0,0,0.52);
+      --black: #050505;
+      --white: #ffffff;
+      --muted: rgba(255, 255, 255, 0.62);
+      --line: rgba(255, 255, 255, 0.13);
+      --gold: #d8bd82;
+      --blue: #8fb7ff;
+      --shadow: rgba(0, 0, 0, 0.66);
     }
 
     * {
       box-sizing: border-box;
     }
 
+    html,
     body {
+      width: 100%;
+      min-height: 100%;
       margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--white);
+      background: var(--black);
+    }
+
+    body {
       min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .page {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 22px;
+      overflow: hidden;
+      isolation: isolate;
       background:
-        radial-gradient(circle at 50% -10%, rgba(105,240,174,0.18), transparent 35%),
-        radial-gradient(circle at 10% 20%, rgba(255,255,255,0.07), transparent 28%),
-        radial-gradient(circle at 90% 18%, rgba(105,240,174,0.08), transparent 28%),
-        linear-gradient(180deg, #101010 0%, var(--bg) 58%, #020202 100%);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-      line-height: 1.6;
+        radial-gradient(circle at 18% 12%, rgba(255,255,255,0.055), transparent 28%),
+        radial-gradient(circle at 82% 16%, rgba(143,183,255,0.075), transparent 32%),
+        radial-gradient(circle at 48% 108%, rgba(216,189,130,0.08), transparent 42%),
+        linear-gradient(145deg, #020202 0%, #151515 50%, #050505 100%);
+      background-size: 140% 140%;
+      animation: deepBackgroundMove 18s ease-in-out infinite alternate;
     }
 
-    .wrap {
-      width: min(1040px, calc(100% - 34px));
+    .page::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.18;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.026) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.020) 1px, transparent 1px);
+      background-size: 38px 38px;
+      mask-image: radial-gradient(circle at center, black 0%, transparent 78%);
+    }
+
+    .page::after {
+      content: "";
+      position: fixed;
+      inset: -20%;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(115deg, transparent 18%, rgba(255,255,255,0.055) 42%, transparent 62%),
+        linear-gradient(28deg, transparent 24%, rgba(143,183,255,0.060) 48%, transparent 70%);
+      opacity: 0.72;
+      transform: rotate(-6deg);
+      animation: cinematicSweep 12s ease-in-out infinite alternate;
+    }
+
+
+    .led-background {
+  position: absolute;
+  inset: -20%;
+  z-index: 2;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0.85;
+  mix-blend-mode: screen;
+}
+
+.led-string {
+  position: absolute;
+  left: -35%;
+  width: 170%;
+  height: 2px;
+  border-radius: 999px;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 18px,
+      rgba(255, 255, 255, 0.08) 20px,
+      rgba(255, 255, 255, 0.55) 23px,
+      rgba(210, 220, 255, 0.28) 26px,
+      transparent 34px
+    );
+  filter:
+    drop-shadow(0 0 8px rgba(255, 255, 255, 0.35))
+    drop-shadow(0 0 18px rgba(120, 150, 255, 0.22));
+  transform-origin: center;
+}
+
+.led-string::after {
+  content: "";
+  position: absolute;
+  inset: -7px 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.0) 30%,
+    rgba(255, 255, 255, 0.75) 48%,
+    rgba(205, 175, 105, 0.55) 52%,
+    transparent 68%,
+    transparent 100%
+  );
+  opacity: 0.65;
+  filter: blur(7px);
+  animation: ledPulse 4.8s ease-in-out infinite;
+}
+
+.led-one {
+  top: 18%;
+  transform: rotate(-13deg);
+  animation: ledMoveOne 13s linear infinite;
+}
+
+.led-two {
+  top: 42%;
+  transform: rotate(9deg);
+  animation: ledMoveTwo 16s linear infinite;
+  opacity: 0.55;
+}
+
+.led-three {
+  top: 67%;
+  transform: rotate(-7deg);
+  animation: ledMoveThree 19s linear infinite;
+  opacity: 0.45;
+}
+
+.led-four {
+  top: 84%;
+  transform: rotate(14deg);
+  animation: ledMoveFour 22s linear infinite;
+  opacity: 0.35;
+}
+
+@keyframes ledMoveOne {
+  0% {
+    translate: -18% 0;
+  }
+  100% {
+    translate: 18% 0;
+  }
+}
+
+@keyframes ledMoveTwo {
+  0% {
+    translate: 20% 0;
+  }
+  100% {
+    translate: -20% 0;
+  }
+}
+
+@keyframes ledMoveThree {
+  0% {
+    translate: -14% 0;
+  }
+  100% {
+    translate: 14% 0;
+  }
+}
+
+@keyframes ledMoveFour {
+  0% {
+    translate: 16% 0;
+  }
+  100% {
+    translate: -16% 0;
+  }
+}
+
+@keyframes ledPulse {
+  0%, 100% {
+    opacity: 0.25;
+    transform: translateX(-18%);
+  }
+  50% {
+    opacity: 0.9;
+    transform: translateX(18%);
+  }
+}
+
+    .light-orb {
+      position: fixed;
+      z-index: 1;
+      pointer-events: none;
+      border-radius: 999px;
+      mix-blend-mode: screen;
+      filter: blur(38px);
+    }
+
+    .orb-gold {
+      width: 520px;
+      height: 520px;
+      left: -190px;
+      top: 8%;
+      opacity: 0.60;
+      background:
+        radial-gradient(circle, rgba(216,189,130,0.48) 0%, rgba(216,189,130,0.18) 38%, transparent 72%);
+      animation: goldLightMove 14s ease-in-out infinite alternate;
+    }
+
+    .orb-blue {
+      width: 560px;
+      height: 560px;
+      right: -220px;
+      top: -4%;
+      opacity: 0.55;
+      background:
+        radial-gradient(circle, rgba(143,183,255,0.42) 0%, rgba(143,183,255,0.15) 38%, transparent 72%);
+      animation: blueLightMove 16s ease-in-out infinite alternate;
+    }
+
+    .orb-white {
+      width: 430px;
+      height: 430px;
+      left: 42%;
+      bottom: -190px;
+      opacity: 0.40;
+      background:
+        radial-gradient(circle, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0.10) 40%, transparent 72%);
+      animation: whiteLightMove 12s ease-in-out infinite alternate;
+    }
+
+    .moving-line {
+      position: fixed;
+      z-index: 1;
+      pointer-events: none;
+      width: 90vw;
+      height: 1px;
+      opacity: 0.34;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.30), rgba(143,183,255,0.22), transparent);
+      filter: blur(0.4px);
+    }
+
+    .line-one {
+      top: 20%;
+      left: -28%;
+      transform: rotate(-13deg);
+      animation: lineOneMove 13s ease-in-out infinite alternate;
+    }
+
+    .line-two {
+      right: -30%;
+      bottom: 20%;
+      transform: rotate(14deg);
+      background: linear-gradient(90deg, transparent, rgba(216,189,130,0.28), rgba(255,255,255,0.22), transparent);
+      animation: lineTwoMove 15s ease-in-out infinite alternate;
+    }
+
+    .shell {
+      position: relative;
+      z-index: 3;
+      width: min(100%, 1180px);
       margin: 0 auto;
-      padding: 34px 0 64px;
-    }
-
-    .topbar {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 34px;
-    }
-
-    .nav {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: center;
-      padding: 8px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.035);
-      border: 1px solid rgba(255,255,255,0.08);
-      backdrop-filter: blur(18px);
-    }
-
-    .nav a {
-      color: rgba(255,255,255,0.76);
-      text-decoration: none;
-      font-size: 12px;
-      font-weight: 900;
-      letter-spacing: 0.4px;
-      padding: 9px 14px;
-      border-radius: 999px;
-      transition: 0.2s ease;
-    }
-
-    .nav a:hover {
-      color: #050505;
-      background: var(--green);
+      display: grid;
+      gap: 16px;
     }
 
     .hero {
-      text-align: center;
-      padding: clamp(34px, 6vw, 76px);
-      border-radius: 40px;
-      background:
-        linear-gradient(145deg, rgba(255,255,255,0.11), rgba(255,255,255,0.026)),
-        var(--panel);
-      border: 1px solid var(--border);
-      box-shadow: 0 34px 110px var(--shadow);
+      display: grid;
+      grid-template-columns: 0.92fr 1.08fr;
+      gap: 16px;
+      min-height: min(720px, calc(100vh - 122px));
+    }
+
+    .identity-card,
+    .release-card {
       position: relative;
       overflow: hidden;
+      border-radius: 38px;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,0.105), rgba(255,255,255,0.030)),
+        rgba(8,8,8,0.88);
+      border: 1px solid rgba(255,255,255,0.13);
+      box-shadow:
+        0 34px 120px var(--shadow),
+        inset 0 1px 0 rgba(255,255,255,0.12);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
     }
 
-    .hero::before {
+    .identity-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: clamp(26px, 4vw, 44px);
+    }
+
+    .identity-card::before,
+    .release-card::before {
       content: "";
       position: absolute;
-      inset: -1px;
-      background:
-        radial-gradient(circle at 50% 0%, rgba(105,240,174,0.17), transparent 34%),
-        radial-gradient(circle at 50% 100%, rgba(255,255,255,0.06), transparent 34%);
+      inset: 0;
       pointer-events: none;
-    }
-
-    .hero-inner {
-      position: relative;
-      z-index: 1;
-    }
-
-    .logo-wrap {
-      width: 124px;
-      height: 124px;
-      margin: 0 auto 24px;
-      border-radius: 34px;
-      display: grid;
-      place-items: center;
       background:
-        linear-gradient(145deg, rgba(255,255,255,0.16), rgba(255,255,255,0.035));
-      border: 1px solid rgba(255,255,255,0.14);
+        radial-gradient(circle at 30% 18%, rgba(255,255,255,0.095), transparent 29%),
+        radial-gradient(circle at 80% 88%, rgba(216,189,130,0.10), transparent 34%);
+    }
+
+    .logo-lockup {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: clamp(26px, 5vh, 52px);
+    }
+
+    .logo-box {
+      width: clamp(144px, 18vw, 214px);
+      height: clamp(144px, 18vw, 214px);
+      border-radius: clamp(32px, 4vw, 50px);
+      overflow: hidden;
+      background: #000;
+      border: 1px solid rgba(255,255,255,0.16);
       box-shadow:
-        0 24px 60px rgba(0,0,0,0.45),
-        0 0 48px rgba(105,240,174,0.12);
+        0 30px 72px rgba(0,0,0,0.66),
+        0 0 0 1px rgba(255,255,255,0.04);
     }
 
-    .logo {
-      width: 86px;
-      height: 86px;
-      border-radius: 24px;
-      object-fit: cover;
+    .logo-box img {
+      width: 100%;
+      height: 100%;
       display: block;
+      object-fit: cover;
+      border-radius: inherit;
     }
 
-    .logo-fallback {
-      width: 86px;
-      height: 86px;
-      border-radius: 24px;
-      display: grid;
-      place-items: center;
-      color: var(--green);
-      font-size: 46px;
-      font-weight: 950;
-      letter-spacing: -3px;
-      background: rgba(0,0,0,0.22);
-      border: 1px solid rgba(105,240,174,0.16);
+    .headline-block {
+      position: relative;
+      z-index: 2;
     }
 
     .eyebrow {
+      width: fit-content;
+      max-width: 100%;
       display: inline-flex;
       align-items: center;
-      gap: 9px;
-      padding: 8px 13px;
+      justify-content: center;
+      padding: 10px 14px;
       border-radius: 999px;
-      color: var(--green);
-      background: rgba(105,240,174,0.095);
-      border: 1px solid rgba(105,240,174,0.18);
-      font-size: 12px;
-      font-weight: 950;
-      letter-spacing: 1.7px;
+      color: rgba(255,255,255,0.82);
+      background: rgba(255,255,255,0.052);
+      border: 1px solid rgba(255,255,255,0.12);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
     }
 
-    .dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 999px;
-      background: var(--green);
-      box-shadow: 0 0 14px rgba(105,240,174,0.9);
-    }
-
     h1 {
-      margin: 24px 0 16px;
-      font-size: clamp(42px, 8vw, 82px);
-      line-height: 0.92;
-      letter-spacing: -3.8px;
+      margin: 24px 0 0;
+      color: #fff;
+      font-size: clamp(48px, 7vw, 92px);
+      line-height: 0.88;
+      letter-spacing: -0.065em;
+      font-weight: 950;
     }
 
-    .lead {
+    .subtitle {
+      max-width: 470px;
+      margin: 24px 0 0;
       color: var(--muted);
-      font-size: clamp(15px, 2vw, 18px);
-      max-width: 780px;
-      margin: 0 auto;
+      font-size: clamp(15px, 1.8vw, 18px);
+      line-height: 1.62;
+      font-weight: 470;
     }
 
-    .lead strong {
-      color: #ffffff;
+    .owner-strip {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      gap: 6px;
+      margin-top: 34px;
+      padding: 16px;
+      border-radius: 24px;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,0.080), rgba(255,255,255,0.024)),
+        rgba(255,255,255,0.036);
+      border: 1px solid rgba(255,255,255,0.11);
+    }
+
+    .owner-label {
+      color: rgba(255,255,255,0.45);
+      font-size: 10px;
+      font-weight: 850;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .owner-name {
+      color: #fff;
+      font-size: 16px;
       font-weight: 900;
+      letter-spacing: -0.01em;
     }
 
-    .actions {
+    .release-card {
       display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 32px;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 16px;
+      padding: clamp(20px, 3vw, 32px);
     }
 
-    .button {
+    .release-content {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      gap: 16px;
+    }
+
+    .launch-banner {
+      display: grid;
+      gap: 12px;
+      padding: clamp(18px, 2.6vw, 26px);
+      border-radius: 30px;
+      background:
+        linear-gradient(135deg, rgba(143,183,255,0.18), rgba(216,189,130,0.14)),
+        rgba(255,255,255,0.050);
+      border: 1px solid rgba(255,255,255,0.15);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
+    }
+
+    .launch-banner small {
+      color: rgba(255,255,255,0.58);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .launch-banner strong {
+      color: #fff;
+      font-size: clamp(25px, 3.5vw, 42px);
+      line-height: 1.02;
+      letter-spacing: -0.045em;
+      font-weight: 950;
+    }
+
+    .launch-banner p {
+      max-width: 610px;
+      margin: 0;
+      color: rgba(255,255,255,0.64);
+      font-size: 14px;
+      line-height: 1.58;
+    }
+
+    .platform-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .platform-card {
+      position: relative;
+      min-height: 178px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 18px;
+      border-radius: 28px;
+      overflow: hidden;
+      text-decoration: none;
+      color: #fff;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,0.105), rgba(255,255,255,0.030)),
+        rgba(255,255,255,0.040);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow:
+        0 18px 48px rgba(0,0,0,0.31),
+        inset 0 1px 0 rgba(255,255,255,0.10);
+      transition:
+        transform 180ms ease,
+        border-color 180ms ease,
+        background 180ms ease,
+        box-shadow 180ms ease;
+    }
+
+    .platform-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at 84% 16%, rgba(255,255,255,0.11), transparent 34%);
+    }
+
+    .platform-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(255,255,255,0.28);
+      background:
+        linear-gradient(145deg, rgba(255,255,255,0.150), rgba(255,255,255,0.045)),
+        rgba(255,255,255,0.056);
+      box-shadow:
+        0 24px 62px rgba(0,0,0,0.40),
+        inset 0 1px 0 rgba(255,255,255,0.15);
+    }
+
+    .platform-card:active {
+      transform: translateY(1px) scale(0.985);
+    }
+
+    .platform-top {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .platform-icon {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      color: #050505;
+      background: rgba(255,255,255,0.94);
+      font-size: 25px;
+      font-weight: 950;
+    }
+
+    .platform-tag {
+      padding: 7px 9px;
+      border-radius: 999px;
+      color: rgba(255,255,255,0.72);
+      background: rgba(255,255,255,0.058);
+      border: 1px solid rgba(255,255,255,0.10);
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .platform-body {
+      position: relative;
+      z-index: 2;
+      margin-top: 26px;
+      text-align: left;
+    }
+
+    .platform-body strong {
+      display: block;
+      color: #fff;
+      font-size: clamp(18px, 2.4vw, 24px);
+      font-weight: 950;
+      letter-spacing: -0.03em;
+    }
+
+    .platform-body span {
+      display: block;
+      margin-top: 8px;
+      color: rgba(255,255,255,0.58);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .platform-note {
+      position: relative;
+      z-index: 2;
+      margin-top: 14px;
+      padding-top: 13px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.76);
+      font-size: 11px;
+      font-weight: 850;
+      letter-spacing: 0.04em;
+    }
+
+    .feature-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .feature {
+      min-height: 62px;
+      display: grid;
+      place-items: center;
+      padding: 12px;
+      border-radius: 20px;
+      color: rgba(255,255,255,0.86);
+      background:
+        linear-gradient(145deg, rgba(255,255,255,0.078), rgba(255,255,255,0.024)),
+        rgba(255,255,255,0.034);
+      border: 1px solid rgba(255,255,255,0.095);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .message-card {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 14px;
+      align-items: center;
+      padding: 16px;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.044);
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+
+    .message-light {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      background:
+        radial-gradient(circle at 36% 34%, #fff, rgba(216,189,130,0.94) 34%, rgba(143,183,255,0.48) 72%, transparent 73%);
+      box-shadow:
+        0 0 28px rgba(216,189,130,0.28),
+        0 0 34px rgba(143,183,255,0.16);
+    }
+
+    .message-card strong {
+      display: block;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+    }
+
+    .message-card span {
+      display: block;
+      margin-top: 4px;
+      color: rgba(255,255,255,0.55);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .cta-row {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .cta {
+      min-width: 172px;
+      min-height: 42px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-height: 48px;
-      padding: 0 20px;
-      border-radius: 17px;
+      padding: 0 18px;
+      border-radius: 999px;
+      color: rgba(255,255,255,0.88);
       text-decoration: none;
-      font-size: 13px;
-      font-weight: 950;
-      letter-spacing: 0.4px;
-      transition: 0.2s ease;
+      background: rgba(255,255,255,0.056);
+      border: 1px solid rgba(255,255,255,0.135);
+      font-size: 12px;
+      font-weight: 850;
+      letter-spacing: 0.035em;
+      transition:
+        transform 180ms ease,
+        background 180ms ease,
+        border-color 180ms ease,
+        color 180ms ease;
     }
 
-    .button.primary {
-      background: linear-gradient(135deg, var(--green), var(--green-dark));
-      color: #050505;
-      box-shadow: 0 18px 40px rgba(0,200,83,0.22);
+    .cta:hover {
+      transform: translateY(-2px);
+      color: #fff;
+      background: rgba(255,255,255,0.105);
+      border-color: rgba(255,255,255,0.29);
     }
 
-    .button.secondary {
-      color: #ffffff;
-      border: 1px solid rgba(255,255,255,0.11);
-      background: rgba(255,255,255,0.05);
-    }
-
-    .button:hover {
-      transform: translateY(-1px);
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-      margin-top: 22px;
-    }
-
-    .card {
-      padding: 22px;
-      border-radius: 26px;
-      background:
-        linear-gradient(145deg, rgba(255,255,255,0.075), rgba(255,255,255,0.028));
-      border: 1px solid rgba(255,255,255,0.085);
-      min-height: 168px;
-    }
-
-    .card-number {
-      width: 34px;
-      height: 34px;
-      border-radius: 13px;
-      display: grid;
-      place-items: center;
-      margin-bottom: 15px;
-      color: var(--green);
-      background: rgba(105,240,174,0.09);
-      border: 1px solid rgba(105,240,174,0.16);
-      font-size: 13px;
-      font-weight: 950;
-    }
-
-    .card h2 {
-      margin: 0 0 8px;
-      font-size: 18px;
-      letter-spacing: -0.4px;
-    }
-
-    .card p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .info {
-      margin-top: 16px;
-      padding: 24px;
-      border-radius: 28px;
-      background: rgba(255,255,255,0.035);
-      border: 1px solid rgba(255,255,255,0.075);
-      text-align: center;
-    }
-
-    .info p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .info strong {
-      color: #ffffff;
+    .cta:active {
+      transform: translateY(1px) scale(0.985);
     }
 
     .footer {
-      margin-top: 34px;
+      position: relative;
+      z-index: 3;
+      width: min(100%, 1180px);
+      margin: 12px auto 0;
+      color: rgba(255,255,255,0.38);
+      font-size: clamp(9px, 2.2vw, 12px);
+      letter-spacing: 0.02em;
       text-align: center;
-      color: rgba(255,255,255,0.36);
-      font-size: 12px;
-      letter-spacing: 0.8px;
-      font-weight: 800;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .footer-line {
-      width: 58px;
-      height: 1px;
-      margin: 0 auto 14px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.34), transparent);
-    }
-
-    @media (max-width: 780px) {
-      .grid {
-        grid-template-columns: 1fr;
+    @keyframes deepBackgroundMove {
+      0% {
+        background-position: 0% 0%;
       }
 
-      h1 {
-        letter-spacing: -2.6px;
+      50% {
+        background-position: 55% 44%;
       }
 
-      .logo-wrap {
-        width: 110px;
-        height: 110px;
-        border-radius: 30px;
-      }
-
-      .logo,
-      .logo-fallback {
-        width: 78px;
-        height: 78px;
+      100% {
+        background-position: 100% 100%;
       }
     }
 
-    @media (max-width: 460px) {
-      .wrap {
-        width: min(100% - 28px, 1040px);
-        padding-top: 24px;
+    @keyframes cinematicSweep {
+      0% {
+        transform: translate3d(-7%, -2%, 0) rotate(-7deg);
+        opacity: 0.25;
+      }
+
+      50% {
+        transform: translate3d(4%, 2%, 0) rotate(-5deg);
+        opacity: 0.72;
+      }
+
+      100% {
+        transform: translate3d(9%, 3%, 0) rotate(-8deg);
+        opacity: 0.42;
+      }
+    }
+
+    @keyframes goldLightMove {
+      0% {
+        transform: translate3d(0, 0, 0) scale(1);
+        opacity: 0.46;
+      }
+
+      45% {
+        transform: translate3d(180px, -70px, 0) scale(1.18);
+        opacity: 0.88;
+      }
+
+      100% {
+        transform: translate3d(290px, 120px, 0) scale(1.04);
+        opacity: 0.58;
+      }
+    }
+
+    @keyframes blueLightMove {
+      0% {
+        transform: translate3d(0, 0, 0) scale(1);
+        opacity: 0.42;
+      }
+
+      50% {
+        transform: translate3d(-210px, 90px, 0) scale(1.15);
+        opacity: 0.78;
+      }
+
+      100% {
+        transform: translate3d(-95px, 260px, 0) scale(1.02);
+        opacity: 0.54;
+      }
+    }
+
+    @keyframes whiteLightMove {
+      0% {
+        transform: translate3d(-90px, 0, 0) scale(1);
+        opacity: 0.24;
+      }
+
+      50% {
+        transform: translate3d(90px, -145px, 0) scale(1.22);
+        opacity: 0.56;
+      }
+
+      100% {
+        transform: translate3d(-140px, -190px, 0) scale(1.08);
+        opacity: 0.34;
+      }
+    }
+
+    @keyframes lineOneMove {
+      0% {
+        transform: translateX(-6%) rotate(-13deg);
+        opacity: 0.16;
+      }
+
+      50% {
+        transform: translateX(12%) rotate(-13deg);
+        opacity: 0.42;
+      }
+
+      100% {
+        transform: translateX(22%) rotate(-13deg);
+        opacity: 0.22;
+      }
+    }
+
+    @keyframes lineTwoMove {
+      0% {
+        transform: translateX(8%) rotate(14deg);
+        opacity: 0.14;
+      }
+
+      50% {
+        transform: translateX(-12%) rotate(14deg);
+        opacity: 0.40;
+      }
+
+      100% {
+        transform: translateX(-24%) rotate(14deg);
+        opacity: 0.20;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .page {
+        justify-content: flex-start;
+        padding: 14px 14px 28px;
       }
 
       .hero {
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+
+      .identity-card,
+      .release-card {
         border-radius: 30px;
-        padding: 30px 20px;
       }
 
-      .actions {
-        flex-direction: column;
+      .identity-card {
+        min-height: auto;
       }
 
-      .button {
-        width: 100%;
+      .logo-lockup {
+        align-items: center;
+        text-align: center;
       }
 
-      .nav {
+      .headline-block {
+        text-align: center;
+      }
+
+      .subtitle {
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .owner-strip {
+        max-width: 520px;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+      }
+
+      .release-card {
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .identity-card,
+      .release-card {
+        padding: 18px;
+        border-radius: 26px;
+      }
+
+      .logo-box {
+        width: 138px;
+        height: 138px;
+        border-radius: 32px;
+      }
+
+      h1 {
+        font-size: clamp(44px, 15vw, 62px);
+      }
+
+      .subtitle {
+        font-size: 14px;
+      }
+
+      .platform-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .platform-card {
+        min-height: 162px;
+        padding: 13px;
         border-radius: 22px;
+      }
+
+      .platform-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 12px;
+        font-size: 20px;
+      }
+
+      .platform-tag {
+        font-size: 8px;
+        padding: 6px 7px;
+      }
+
+      .platform-body strong {
+        font-size: 16px;
+      }
+
+      .platform-body span {
+        font-size: 10.5px;
+      }
+
+      .platform-note {
+        font-size: 9.5px;
+      }
+
+      .feature-row {
+        grid-template-columns: 1fr;
+      }
+
+      .message-card {
+        grid-template-columns: 1fr;
+        text-align: center;
+        place-items: center;
+      }
+
+      .cta {
+        min-width: 142px;
+        font-size: 11px;
+      }
+
+      .orb-gold {
+        width: 340px;
+        height: 340px;
+        left: -170px;
+      }
+
+      .orb-blue {
+        width: 360px;
+        height: 360px;
+        right: -190px;
+      }
+
+      .orb-white {
+        width: 280px;
+        height: 280px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .page {
+        padding: 10px 10px 24px;
+      }
+
+      .platform-card {
+        padding: 11px;
+      }
+
+      .platform-tag {
+        display: none;
+      }
+
+      .platform-body span {
+        display: none;
+      }
+
+      .platform-note {
+        font-size: 9px;
+      }
+
+      .cta {
+        min-width: 132px;
       }
     }
   </style>
 </head>
 
 <body>
-  <div class="wrap">
-    <header class="topbar">
-      <nav class="nav" aria-label="Navigazione">
-        <a href="https://vitae-3ee57.web.app/privacy-policy.html">Privacy Policy</a>
-        <a href="https://vitae-3ee57.web.app/eliminazione-account.html">Eliminazione account</a>
-      </nav>
-    </header>
-
-    <main>
-      <section class="hero">
-        <div class="hero-inner">
-
-          <!-- LOGO CENTRALE -->
-          <!-- Quando hai il logo, metti il file in public/logo.png e sostituisci il fallback sotto -->
-          <div class="logo-wrap">
-  <img class="logo" src="logo.png" alt="Logo VITÆ Collective Studio">
+  <main class="page">
+    <div class="led-background" aria-hidden="true">
+  <span class="led-string led-one"></span>
+  <span class="led-string led-two"></span>
+  <span class="led-string led-three"></span>
+  <span class="led-string led-four"></span>
 </div>
+    <div class="light-orb orb-gold"></div>
+    <div class="light-orb orb-blue"></div>
+    <div class="light-orb orb-white"></div>
+    <div class="moving-line line-one"></div>
+    <div class="moving-line line-two"></div>
 
-          <div class="eyebrow"><span class="dot"></span> App ufficiale</div>
+    <div class="shell">
+      <section class="hero" aria-label="VITÆ Collective Studio">
+        <aside class="identity-card">
+          <div class="logo-lockup">
+            <div class="logo-box">
+              <img src="/logo.png?v=7" alt="Logo VITÆ Collective Studio" />
+            </div>
 
-          <h1>VITÆ Collective Studio</h1>
+            <div class="headline-block">
+              <div class="eyebrow">app ufficiale</div>
 
-          <p class="lead">
-            <strong>VITÆ Collective Studio</strong> è l’app ufficiale di VITÆ Collective Studio.
-            L’app consente agli utenti di creare un account, accedere con Google o Apple,
-            prenotare servizi barber, scegliere operatori e servizi disponibili,
-            consultare e gestire le proprie prenotazioni, ricevere notifiche relative agli
-            appuntamenti e richiedere l’eliminazione del proprio account.
-          </p>
+              <h1>Work in progress</h1>
 
-          <div class="actions">
-            <a class="button primary" href="https://vitae-3ee57.web.app/privacy-policy.html">Privacy Policy</a>
-            <a class="button secondary" href="https://vitae-3ee57.web.app/eliminazione-account.html">Eliminazione account</a>
+              <p class="subtitle">
+                La nuova esperienza digitale VITÆ sta arrivando: prenotazioni online, area cliente, reminder appuntamenti e gestione più semplice dello studio.
+              </p>
+            </div>
           </div>
-        </div>
+
+          <div class="owner-strip">
+            <div class="owner-label">Titolare dell’applicazione</div>
+            <div class="owner-name">Francesco Ventrella</div>
+          </div>
+        </aside>
+
+        <section class="release-card">
+          <div class="release-content">
+            <div class="launch-banner">
+              <small>release digitale</small>
+              <strong>Disponibile presto sugli store ufficiali.</strong>
+              <p>
+                L’app VITÆ Collective Studio è in fase di preparazione finale per la pubblicazione su iPhone e Android.
+              </p>
+            </div>
+
+            <div class="platform-grid">
+              <a class="platform-card" href="#" aria-label="App Store">
+                <div class="platform-top">
+                  <div class="platform-icon"></div>
+                  <div class="platform-tag">in arrivo</div>
+                </div>
+
+                <div class="platform-body">
+                  <strong>App Store</strong>
+                  <span>Esperienza iPhone curata per clienti e prenotazioni.</span>
+                </div>
+
+                <div class="platform-note">Rilascio iOS in fase di attivazione</div>
+              </a>
+
+              <a class="platform-card" href="#" aria-label="Google Play">
+                <div class="platform-top">
+                  <div class="platform-icon">▶</div>
+                  <div class="platform-tag">in arrivo</div>
+                </div>
+
+                <div class="platform-body">
+                  <strong>Google Play</strong>
+                  <span>Versione Android pronta per la distribuzione ufficiale.</span>
+                </div>
+
+                <div class="platform-note">Rilascio Android in fase di attivazione</div>
+              </a>
+            </div>
+
+            <div class="feature-row">
+              <div class="feature">Prenotazioni online</div>
+              <div class="feature">Reminder appuntamento</div>
+              <div class="feature">Area clienti</div>
+            </div>
+
+            <div class="message-card">
+              <div class="message-light"></div>
+              <div>
+                <strong>Una nuova modalità per vivere lo studio.</strong>
+                <span>
+                  Appuntamenti, servizi e comunicazioni saranno disponibili in un’unica esperienza digitale premium.
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="cta-row">
+            <a class="cta" href="/privacy-policy.html">Privacy policy</a>
+            <a class="cta" href="/eliminazione-account.html">Eliminazione account</a>
+          </div>
+        </section>
       </section>
-
-      <section class="grid" aria-label="Funzioni principali">
-        <div class="card">
-          <div class="card-number">01</div>
-          <h2>Prenotazioni barber</h2>
-          <p>
-            I clienti possono scegliere il servizio desiderato, selezionare operatori disponibili
-            e prenotare un appuntamento presso VITÆ Collective Studio.
-          </p>
-        </div>
-
-        <div class="card">
-          <div class="card-number">02</div>
-          <h2>Gestione appuntamenti</h2>
-          <p>
-            L’app permette di consultare le proprie prenotazioni, ricevere aggiornamenti
-            e gestire le comunicazioni legate agli appuntamenti.
-          </p>
-        </div>
-
-        <div class="card">
-          <div class="card-number">03</div>
-          <h2>Account cliente</h2>
-          <p>
-            Gli utenti possono accedere con email, Google o Apple e richiedere
-            l’eliminazione del proprio account secondo le norme sulla privacy.
-          </p>
-        </div>
-      </section>
-
-      <section class="info">
-        <p>
-          Questa applicazione è destinata ai clienti di <strong>VITÆ Collective Studio</strong>
-          e ha lo scopo di semplificare la prenotazione dei servizi barber e la gestione
-          delle comunicazioni tra cliente e studio.
-        </p>
-      </section>
-    </main>
+    </div>
 
     <footer class="footer">
-      <div class="footer-line"></div>
-      VITÆ COLLECTIVE STUDIO
+      © 2026 Copyright. Tutti i diritti sono riservati.
     </footer>
-  </div>
+  </main>
 </body>
 </html>
